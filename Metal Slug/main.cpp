@@ -21,7 +21,6 @@ int between_rand(int high, int low);
 void DrawAnimation (HDC hdc, RECT * rect);
 void UpdateSprites (RECT * rect);
 void move_animation(int key, RECT* rect);
-void Snow (RECT * rect);
 void Bullet (int number_of_bullets = 1);
 void Render(HWND);
 BOOL Initialize(void);
@@ -54,6 +53,7 @@ int jumpCounterX = 0;
 int jumpCounterY = 0;
 bool idle = true;
 bool jump = false;
+bool falling = false;
 bool mm = false;
 
 /*  Declare Windows procedure  */
@@ -178,10 +178,13 @@ BOOL Initialize(void)
     bullet.width = bitmap.bmWidth;
     bullet.height = bitmap.bmHeight;
 
-    terrainMappings[16] = 200;
-    terrainMappings[18] = 180;
-    terrainMappings[22] = 195;
-    terrainMappings[24] = 200;
+    terrainMappings[16] = 195;
+    terrainMappings[18] = 190;
+    terrainMappings[20] = 180;
+    terrainMappings[22] = 180;
+    terrainMappings[24] = 185;
+    terrainMappings[26] = 195;
+    terrainMappings[28] = 200;
     terrainMappings[36] = 200;
     terrainMappings[38] = 190;
     terrainMappings[54] = 185;
@@ -196,6 +199,7 @@ BOOL Initialize(void)
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     RECT rect;
+    std::cout <<11<< std::endl;
     static int width, height;
     switch (message)                  /* handle the messages */
     {
@@ -211,6 +215,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         break;
     case WM_KEYDOWN:
     {
+
         GetClientRect(hwnd,&rect);
         if(wParam == VK_SPACE)
         {
@@ -236,7 +241,8 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                     move_animation(VK_LEFT, &rect);
             }
             else if(PRESSED(VK_RIGHT))
-            {   if(soldier.x < 320)
+            {
+                if(soldier.x < 320)
                     move_animation(VK_RIGHT, &rect);
             }
         }
@@ -295,32 +301,31 @@ void Bullet(int number_of_bullets)
 
 void UpdateSprites(RECT * rect)
 {
-    std::cout <<soldier.x<< std::endl;
-    static bool falling = false;
-    static int i = 0;
+    std::cout << "x: "<<soldier.x<< std::endl;
+    std::cout << "y: "<<soldier.y<< std::endl;
+
     if(jump)
     {
-        std::cout <<jump<< std::endl;
+        if(PRESSED(VK_RIGHT))
+        {
+            move_animation(VK_RIGHT, rect);
+        }
 
         if(jumpCounterX == 1 && jumpCounterY == 1)
         {
-            falling =true;
+            falling = true;
         }
         if(!falling)
         {
             soldier.y -= 25;
-            i+=25;
         }
         else
         {
             soldier.y += 25;
-            i-=25;
         }
     }
-    else
-    {
-        falling = false;
-    }
+
+
     for(auto bullet : bullet_sprites)
     {
         if(bullet->x < rect->right + bullet->width)
@@ -332,7 +337,7 @@ void UpdateSprites(RECT * rect)
     if(soldier.x > 0 && soldier.x <= 292)
         background.x = -soldier.x*8;
     // If there's a terrain change, update y position
-    if(terrainMappings.count(soldier.x) == 1)
+    if(terrainMappings.count(soldier.x) == 1 && !jump && soldier.x <= terrainMappings[soldier.x])
         soldier.y = terrainMappings[soldier.x];
 }
 int between_rand(int high, int low)
@@ -342,6 +347,8 @@ int between_rand(int high, int low)
 
 void move_animation(int key, RECT* rect)
 {
+    std::cout <<33<< std::endl;
+
     switch(key)
     {
     case VK_LEFT:
@@ -430,6 +437,7 @@ void DrawAnimation (HDC hdc, RECT * rect)
         if(jumpCounterX == 2 && jumpCounterY == 2)
         {
             jump = false;
+            falling = false;
             jumpCounterX = 0;
             jumpCounterY = 0;
         }
@@ -441,11 +449,6 @@ void DrawAnimation (HDC hdc, RECT * rect)
         {
             animationCounter = 0;
         }
-    }
-
-    if(mm)
-    {
-        idle = true;
     }
 
     for(auto bullet : bullet_sprites)
