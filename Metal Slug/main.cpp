@@ -39,6 +39,8 @@ Object background;
 Object bullet;
 Object soldier, soldierJump;
 Object soldierIdle;
+Object lives;
+Object score;
 
 std::vector<Object *> bullet_sprites;
 std::map<int,int> terrainMappings;
@@ -47,6 +49,8 @@ HBITMAP hbmsoldier, hbmsoldierMask;
 HBITMAP hbmbullet,hbmbulletMask;
 HBITMAP hbmsoldierIdle, hbmsoldierIdleMask;
 HBITMAP hbmsoldierJump, hbmsoldierJumpMask;
+HBITMAP hbmLives,hbmLivesMask;
+HBITMAP hbmScore,hbmScoreMask;
 int animationCounter = 0;
 int idleAnimationCounter = 0;
 int jumpCounterX = 0;
@@ -152,6 +156,10 @@ BOOL Initialize(void)
     hbmsoldierJump = (HBITMAP)LoadImage(NULL, "assets/player/jump_right_black.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     hbmbullet = (HBITMAP)LoadImage(NULL, "assets/cartouche_droite_bullet_black.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     hbmbulletMask = (HBITMAP)LoadImage(NULL, "assets/cartouche_droite_bullet_white.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    hbmLives = (HBITMAP) LoadImage(NULL, "assets/lives_black.bmp", IMAGE_BITMAP, 0,0, LR_LOADFROMFILE);
+    hbmLivesMask = (HBITMAP) LoadImage(NULL, "assets/lives_white.bmp", IMAGE_BITMAP, 0,0, LR_LOADFROMFILE);
+    hbmScore = (HBITMAP) LoadImage(NULL, "assets/score_black.bmp", IMAGE_BITMAP, 0,0, LR_LOADFROMFILE);
+    hbmScoreMask = (HBITMAP) LoadImage(NULL, "assets/score_white.bmp", IMAGE_BITMAP, 0,0, LR_LOADFROMFILE);
 
     GetObject(hbmbackground,sizeof(BITMAP),&bitmap);
     background.width = bitmap.bmWidth;
@@ -177,6 +185,18 @@ BOOL Initialize(void)
     GetObject(hbmbullet, sizeof(BITMAP), &bitmap);
     bullet.width = bitmap.bmWidth;
     bullet.height = bitmap.bmHeight;
+
+    GetObject(hbmLives, sizeof(BITMAP), &bitmap);
+    lives.width = bitmap.bmWidth;
+    lives.height = bitmap.bmHeight;
+    lives.x = 10;
+    lives.y = 10;
+
+    GetObject(hbmScore, sizeof(BITMAP), &bitmap);
+    score.width = bitmap.bmWidth;
+    score.height = bitmap.bmHeight;
+    score.x = 400;
+    score.y = 22;
 
     terrainMappings[16] = 195;
     terrainMappings[18] = 190;
@@ -390,6 +410,19 @@ void DrawAnimation (HDC hdc, RECT * rect)
     HBITMAP hbmOld = (HBITMAP) SelectObject( hdcMem, hbmbackground);
     BitBlt(hdcBuffer, background.x, background.y, background.width, background.height, hdcMem, 0, 0, SRCCOPY);
 
+    (HBITMAP)SelectObject(hdcMem, hbmLivesMask);
+    BitBlt(hdcBuffer, lives.x, lives.y, lives.width, lives.height, hdcMem,0, 0, SRCAND);
+
+    (HBITMAP)SelectObject(hdcMem, hbmLives);
+    BitBlt(hdcBuffer, lives.x, lives.y, lives.width, lives.height, hdcMem, 0, 0, SRCPAINT);
+
+    (HBITMAP)SelectObject(hdcMem, hbmScoreMask);
+    BitBlt(hdcBuffer, score.x, score.y, score.width, score.height, hdcMem,0, 0, SRCAND);
+
+    (HBITMAP)SelectObject(hdcMem, hbmScore);
+    BitBlt(hdcBuffer, score.x, score.y, score.width, score.height, hdcMem, 0, 0, SRCPAINT);
+
+
     if(idle && !jump)
     {
         SelectObject(hdcMem, hbmsoldierIdleMask);
@@ -469,3 +502,4 @@ void DrawAnimation (HDC hdc, RECT * rect)
     DeleteDC(hdcBuffer);
     DeleteObject(hbmBuffer);
 }
+
