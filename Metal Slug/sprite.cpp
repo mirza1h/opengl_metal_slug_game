@@ -47,26 +47,26 @@ void Player::playerJump() {
 }
 
 
-void Sprite::draw(HDC bufferHDC, int xPos, int yPos, std::size_t spriteCount, bool inverted)
+void Sprite::draw(HDC bufferHDC, int xPos, int yPos, std::size_t spriteCountX, std::size_t spriteCountY = 0, bool inverted = false)
 {
-  spriteCount = spriteCount % (columns * rows);
+  spriteCountX = spriteCountX % (columns * rows);
 
-  int posX = (spriteCount) * getWidth();
-  int posY = (spriteCount) * getHeight();
+  int posX = (spriteCountX) % columns * getWidth();
+  int posY = (spriteCountY) * getHeight();
   HDC tmpHDC = CreateCompatibleDC(bufferHDC);
   HBITMAP oldBITMAP = (HBITMAP)SelectObject(tmpHDC, imgBitmask);
 
   if(inverted)
     StretchBlt(bufferHDC, xPos, yPos, getWidth(), getHeight(), tmpHDC, posX + getWidth() - 1, posY, -getWidth(), getHeight(), SRCAND);
   else
-    BitBlt(bufferHDC, xPos, yPos, getWidth(), getHeight(), tmpHDC, posX, 0, SRCAND);
+    BitBlt(bufferHDC, xPos, yPos, getWidth(), getHeight(), tmpHDC, posX, posY, SRCAND);
 
   SelectObject(tmpHDC, img);
 
   if(inverted)
     StretchBlt(bufferHDC, xPos, yPos, getWidth(), getHeight(), tmpHDC, posX + getWidth() - 1, posY, -getWidth(), getHeight(), SRCPAINT);
   else
-    BitBlt(bufferHDC, xPos, yPos, getWidth(), getHeight(), tmpHDC, posX, 0, SRCPAINT);
+    BitBlt(bufferHDC, xPos, yPos, getWidth(), getHeight(), tmpHDC, posX, posY, SRCPAINT);
 
 
   SelectObject(tmpHDC, oldBITMAP);
@@ -95,6 +95,9 @@ Sprite::Sprite(const std::string& filenameImg,
   BITMAP imgBitmaskInfo;
   GetObject(imgBitmask, sizeof(imgBitmaskInfo), &imgBitmaskInfo);
   GetObject(img, sizeof(imgInfo), &imgInfo);
+      std::cout << filenameImg << std::endl;
+
+    std::cout << imgBitmaskInfo.bmHeight << std::endl;
 
   if(imgBitmaskInfo.bmWidth != imgInfo.bmWidth || imgBitmaskInfo.bmHeight != imgInfo.bmHeight)
     throw std::invalid_argument("Sprite(): incompatibile dimensions of img and bitmaskImg");

@@ -21,12 +21,11 @@ class Sprite{
 
     int getWidth() const { return imgInfo.bmWidth / columns; }
     int getHeight() const { return imgInfo.bmHeight / rows; }
-    int getBmpWidth() const { return imgInfo.bmWidth; }
 
     int getColumnCount() const { return columns; }
     int getRowsCount() const { return rows; }
 
-    void draw(HDC bufferHDC, int xPos, int yPos, std::size_t spriteCount,  bool inverted);
+    void draw(HDC bufferHDC, int xPos, int yPos, std::size_t spriteCountX, std::size_t spriteCountY, bool inverted);
 
 
   private:
@@ -53,8 +52,11 @@ class Player{
 
     int getX() const { return xPos; }
     int getY() const { return yPos; }
+    void setY(int n) { yPos = n; }
+    void setX(int n) { xPos = n; }
     int getWidth() const { return width; }
     int getHeight() const { return height; }
+
     POINT getCurrentPosition() const;
 
     bool getDirection() const { return direction; }
