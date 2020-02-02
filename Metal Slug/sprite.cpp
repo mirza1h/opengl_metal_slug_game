@@ -1,27 +1,29 @@
-#include "worms.hpp"
+#include "sprite.hpp"
 
 
 
 Player::Player(int x, int y, int w, int h, RECT moveRect, bool dir, int numLives = 3):
-      xPos{ x },
-      yPos{ y },
-      width{ w },
-      height{ h },
-      moveRectangle{ moveRect },
-      direction{ dir },
-      numLives{ numLives }
+  
 {
+  xPos=  x;
+  yPos= y;
+  width= w;
+  height= h;
+  moveRectangle= moveRect;
+  direction = dir;
+  numLives = numLives;
+
   if( xPos - width/2 < moveRectangle.left || xPos + width/2 > moveRectangle.right )
   {
     std::cout << "xPos: " << xPos << std::endl;
     std::cout << "width/2: " << width/2 << std::endl;
     std::cout << "left: " << moveRect.left << std::endl;
     std::cout << "right: " << moveRect.right << std::endl;
-    throw std::invalid_argument("Player(): invalid worms x position: " + std::to_string(x));
+    throw std::invalid_argument("Player(): invalid player x position: " + std::to_string(x));
   }
 
   if( yPos - height/2 < moveRectangle.top || yPos + height/2 > moveRectangle.bottom )
-    throw std::invalid_argument("Player(): invalid worms y position: " + std::to_string(y));
+    throw std::invalid_argument("Player(): invalid player y position: " + std::to_string(y));
 }
 
 
@@ -56,15 +58,15 @@ void Player::moveDown(std::size_t n){
 
 
 void Player::playerJump() {
-   if(falling) {
+   if(falling) 
+   {
       moveDown(25);
-   } else {
+   } 
+   else 
+   {
      moveUp(25);
    }
 }
-
-
-
 
 
 void Sprite::draw(HDC bufferHDC, int xPos, int yPos, std::size_t spriteCount, bool inverted)
@@ -122,12 +124,13 @@ Sprite::Sprite(const std::string& filenameImg,
 }
 
  Sprite::Sprite(const Sprite& s):
-    img{ s.img },
-    imgBitmask{ s.imgBitmask },
-    columns{ s.columns },
-    rows{ s.rows },
-    imgInfo{ s.imgInfo }
  {
+     img = s.img;
+     imgBitmask = s.imgBitmask;
+     columns = s.columns;
+     rows = s.rows;
+     imgInfo = s.imgInfo;
+
 
  }
 

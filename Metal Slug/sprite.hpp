@@ -1,5 +1,5 @@
-#ifndef WORMS_HPP_INCLUDED
-#define WORMS_HPP_INCLUDED
+#ifndef SPRITE_HPP_INCLUDED
+#define SPRITE_HPP_INCLUDED
 
 #include <string>
 #include <stdexcept>
@@ -19,6 +19,7 @@ class Sprite{
                 int c,
                 int r);
 
+    Sprite() = default;
     Sprite(const Sprite&);
 
     int getWidth() const { return imgInfo.bmWidth / columns; }
@@ -34,8 +35,8 @@ class Sprite{
     HBITMAP img;
     HBITMAP imgBitmask;
     BITMAP imgInfo;
-    int columns;
-    int rows;
+    int columns = 0;
+    int rows = 0;
 };
 
 
@@ -44,12 +45,12 @@ class Sprite{
 class Player{
   public:
     Player() = default;
-    Player(int x, int y, int w, int h, RECT moveRect, bool direction, const std::string& nickname);
+    Player(int x, int y, int w, int h, RECT moveRect, bool direction);
 
     void playerJump();
     void moveLeft(std::size_t n);
     void moveRight(std::size_t n);
-    void moveU(std::size_t n);
+    void moveUp(std::size_t n);
     void moveDown(std::size_t n);
     void moveToPoint(POINT pt);
 
@@ -73,9 +74,12 @@ class Player{
     void setShoot(Sprite& shootSprite) { shoot = shootSprite;}
     Sprite& getShoot() { return shoot; }
 
-    void setFalling() { falling = true;}
+    void setFalling() { falling = true; }
+    void setHumanPlayer() { humanPlayer = true; }
+    void getHumanPlayer() { return humanPlayer; }
     void resetFalling() { falling = false; }
     bool getFalling() const { return falling; }
+    void setDead() { dead = true; }
     void flipDirection() { direction = !direction; }
 
   private:
@@ -92,7 +96,9 @@ class Player{
     Sprite shoot;
     Sprite jump;
     bool direction;
-    bool falling;
+    bool humanPlayer = false;
+    bool falling = false;
+    bool dead = false;
 };
 
 
