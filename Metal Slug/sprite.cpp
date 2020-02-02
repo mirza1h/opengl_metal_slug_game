@@ -1,29 +1,25 @@
-#include "worms.hpp"
+#include "sprite.hpp"
 
-
-
-Player::Player(int x, int y, int w, int h, RECT moveRect, bool dir, int numLives = 3):
-      xPos{ x },
-      yPos{ y },
-      width{ w },
-      height{ h },
-      moveRectangle{ moveRect },
-      direction{ dir },
-      numLives{ numLives }
-{
+Player::Player(int x, int y, int w, int h, RECT moveRect, bool dir, int numLives = 3){
+      xPos=  x;
+      yPos= y;
+      width= w;
+      height= h;
+      moveRectangle= moveRect;
+      direction = dir;
+      numLives = numLives;
   if( xPos - width/2 < moveRectangle.left || xPos + width/2 > moveRectangle.right )
   {
     std::cout << "xPos: " << xPos << std::endl;
     std::cout << "width/2: " << width/2 << std::endl;
     std::cout << "left: " << moveRect.left << std::endl;
     std::cout << "right: " << moveRect.right << std::endl;
-    throw std::invalid_argument("Player(): invalid worms x position: " + std::to_string(x));
+    throw std::invalid_argument("Player(): invalid worms x position: " + x);
   }
 
   if( yPos - height/2 < moveRectangle.top || yPos + height/2 > moveRectangle.bottom )
-    throw std::invalid_argument("Player(): invalid worms y position: " + std::to_string(y));
+    throw std::invalid_argument("Player(): invalid worms y position: " + y);
 }
-
 
 
 void Player::moveLeft(std::size_t n){
@@ -121,14 +117,12 @@ Sprite::Sprite(const std::string& filenameImg,
     throw std::invalid_argument("Sprite(): incompatibile dimensions of img and bitmaskImg");
 }
 
- Sprite::Sprite(const Sprite& s):
-    img{ s.img },
-    imgBitmask{ s.imgBitmask },
-    columns{ s.columns },
-    rows{ s.rows },
-    imgInfo{ s.imgInfo }
- {
-
+ Sprite::Sprite(const Sprite& s){
+     img = s.img;
+     imgBitmask = s.imgBitmask;
+     columns = s.columns;
+     rows = s.rows;
+     imgInfo = s.imgInfo;
  }
 
 
@@ -142,7 +136,6 @@ void Player::moveToPoint(POINT pt)
 
     xPos = pt.x;
     yPos = pt.y;
-    dynamicAnimationCounter++;
 }
 
 POINT Player::getCurrentPosition() const

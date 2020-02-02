@@ -4,7 +4,7 @@
 #define UNICODE
 #endif
 
-#define TIMER 1
+#define SNIPER_TIMER 1
 #define PRESSED(vk_code) ((GetAsyncKeyState(vk_code) & 0x8000) ? 1 : 0)
 #include <tchar.h>
 #include <windows.h>
@@ -13,10 +13,14 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include "sprite.hpp"
+#include "background.hpp"
 
 const int SOLDIER_SPEED = 4;
 const int BULLET_SPEED = 30;
 const int WAIT_TIME = 120;
+const int SNIPER_FIRE_TIME = 1500;
+const int MAP_SEGMENT_LENGTH = 540;
 const int pauseTime = 20;
 int between_rand(int high, int low);
 void DrawAnimation (HDC hdc, RECT * rect);
@@ -25,7 +29,7 @@ void move_animation(int key, RECT* rect);
 void Bullet (int number_of_bullets = 1);
 void Render(HWND);
 void PrintText(HDC, std::string, int, int);
-BOOL Initialize(void);
+BOOL Initialize(HWND);
 typedef struct ObjectInfo
 {
     int x;
@@ -36,27 +40,23 @@ typedef struct ObjectInfo
     int dy;
 } Object;
 
-
-Object background;
-Object bullet;
 Object soldier, soldierIdle, soldierJump, soldierShoot, soldierMoveShoot, soldierDeath;
-Object lives;
-Object score;
-Object sniperOne;
-
+Object bullet;
 std::vector<Object *> bullet_sprites;
 std::map<int,int> terrainMappings;
-HBITMAP hbmbackground;
 HBITMAP hbmsoldier, hbmsoldierMask;
-HBITMAP hbmbullet,hbmbulletMask;
 HBITMAP hbmsoldierIdle, hbmsoldierIdleMask;
 HBITMAP hbmsoldierJump, hbmsoldierJumpMask;
 HBITMAP hbmsoldierDeah, hbmsoldierDeathMask;
 HBITMAP hbmsoldierShoot, hbmsoldierShootMask;
 HBITMAP hbmsoldierMoveShoot, hbmsoldierMoveShootMask;
-HBITMAP hbmLives,hbmLivesMask;
-HBITMAP hbmScore,hbmScoreMask;
-HBITMAP hbmSniperOne,hbmSniperOneMask;
+
+Sprite bulletSprite = Sprite("assets/cartouche_droite_bullet_black.bmp","assets/cartouche_droite_bullet_white.bmp", 0, 0, 1, 1);
+Sprite scoreSprite = Sprite("assets/score_black.bmp","assets/score_white.bmp", 0, 0, 1, 1);
+Sprite livesSprite = Sprite("assets/lives_black.bmp","assets/lives_white.bmp", 0, 0, 1, 1);
+Sprite sniperOneSprite = Sprite("assets/sniper_gauche/sniper_gauche_idle_black.bmp","assets/sniper_gauche/sniper_gauche_idle_white.bmp", 0, 0, 3, 1);
+Background backgroundSprite = Background("assets/stage1.bmp",0,0);
+
 int animationCounter = 0;
 int idleAnimationCounter = 0;
 int jumpCounterX = 0;
@@ -127,7 +127,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     /* Make the window visible on the screen */
     ShowWindow (hwnd, nCmdShow);
     // Gameloop
-    if(Initialize())
+    if(Initialize(hwnd))
     {
         while(TRUE)
         {
@@ -155,10 +155,10 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
     return messages.wParam;
 }
 
-BOOL Initialize(void)
+BOOL Initialize(HWND hwnd)
 {
+    SetTimer(hwnd, SNIPER_TIMER, SNIPER_FIRE_TIME, NULL);
     BITMAP bitmap;
-    hbmbackground = (HBITMAP)LoadImage(NULL, "assets/stage1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     hbmsoldierMask = (HBITMAP)LoadImage(NULL, "assets/player/move_right_white.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     hbmsoldier = (HBITMAP)LoadImage(NULL, "assets/player/move_right_black.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     hbmsoldierIdleMask = (HBITMAP)LoadImage(NULL, "assets/player/idle_right_white.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
@@ -169,18 +169,6 @@ BOOL Initialize(void)
     hbmsoldierShootMask = (HBITMAP)LoadImage(NULL, "assets/player/shoot_white.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     hbmsoldierMoveShoot = (HBITMAP)LoadImage(NULL, "assets/player/move_and_shoot_black.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     hbmsoldierMoveShootMask = (HBITMAP)LoadImage(NULL, "assets/player/move_and_shoot_white.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    hbmbullet = (HBITMAP)LoadImage(NULL, "assets/cartouche_droite_bullet_black.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    hbmbulletMask = (HBITMAP)LoadImage(NULL, "assets/cartouche_droite_bullet_white.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    hbmLives = (HBITMAP) LoadImage(NULL, "assets/lives_black.bmp", IMAGE_BITMAP, 0,0, LR_LOADFROMFILE);
-    hbmLivesMask = (HBITMAP) LoadImage(NULL, "assets/lives_white.bmp", IMAGE_BITMAP, 0,0, LR_LOADFROMFILE);
-    hbmScore = (HBITMAP) LoadImage(NULL, "assets/score_black.bmp", IMAGE_BITMAP, 0,0, LR_LOADFROMFILE);
-    hbmScoreMask = (HBITMAP) LoadImage(NULL, "assets/score_white.bmp", IMAGE_BITMAP, 0,0, LR_LOADFROMFILE);
-    hbmSniperOne = (HBITMAP) LoadImage(NULL, "assets/sniper_gauche/sniper_gauche_idle_black.bmp", IMAGE_BITMAP, 0,0, LR_LOADFROMFILE);
-    hbmSniperOneMask = (HBITMAP) LoadImage(NULL, "assets/sniper_gauche/sniper_gauche_idle_white.bmp", IMAGE_BITMAP, 0,0, LR_LOADFROMFILE);
-
-    GetObject(hbmbackground,sizeof(BITMAP),&bitmap);
-    background.width = bitmap.bmWidth;
-    background.height = bitmap.bmHeight;
 
     GetObject(hbmsoldierJumpMask,sizeof(BITMAP),&bitmap);
     soldierJump.width = bitmap.bmWidth/4;
@@ -207,28 +195,6 @@ BOOL Initialize(void)
     soldier.x = 0;
     soldier.y = 200;
 
-    GetObject(hbmbullet, sizeof(BITMAP), &bitmap);
-    bullet.width = bitmap.bmWidth;
-    bullet.height = bitmap.bmHeight;
-
-    GetObject(hbmLives, sizeof(BITMAP), &bitmap);
-    lives.width = bitmap.bmWidth;
-    lives.height = bitmap.bmHeight;
-    lives.x = 10;
-    lives.y = 10;
-
-    GetObject(hbmScore, sizeof(BITMAP), &bitmap);
-    score.width = bitmap.bmWidth;
-    score.height = bitmap.bmHeight;
-    score.x = 400;
-    score.y = 22;
-
-    GetObject(hbmSniperOne, sizeof(BITMAP), &bitmap);
-    sniperOne.width = bitmap.bmWidth/3;
-    sniperOne.height = bitmap.bmHeight;
-    sniperOne.x = 430;
-    sniperOne.y = 190;
-
 //    terrainMappings[16] = 195;
 //    terrainMappings[18] = 190;
 //    terrainMappings[20] = 180;
@@ -243,7 +209,7 @@ BOOL Initialize(void)
 //    terrainMappings[82] = 200;
 //    terrainMappings[160] = 220;
 //    terrainMappings[170] = 230;
-    return TRUE;
+    return true;
 }
 /*  This function is called by the Windows function DispatchMessage()  */
 
@@ -260,7 +226,13 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         printf("x: %d\n", mouseX);
         printf("y: %d\n", mouseY);
         break;
-
+    case WM_TIMER:
+        switch (wParam)
+        {
+        case SNIPER_TIMER:
+            //Bullet();
+            return 0;
+        }
     case WM_SIZE:
         width = LOWORD(lParam);
         height = HIWORD(lParam);
@@ -314,7 +286,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         }
         break;
     case WM_DESTROY:
-        KillTimer(hwnd, TIMER);
+        KillTimer(hwnd, SNIPER_TIMER);
         PostQuitMessage (0);       /* send a WM_QUIT to the message queue */
         break;
     default:                      /* for messages that we don't deal with */
@@ -393,9 +365,9 @@ void UpdateSprites(RECT * rect)
         }
     }
     // Move map as soldier moves
-    if(soldier.x == 540)
+    if(soldier.x == MAP_SEGMENT_LENGTH)
     {
-        background.x = -540 * mapSegementCount;
+        backgroundSprite.setX(-MAP_SEGMENT_LENGTH * mapSegementCount);
         soldier.x = 0;
         ++mapSegementCount;
     }
@@ -445,28 +417,12 @@ void DrawAnimation (HDC hdc, RECT * rect)
     HBITMAP hbmBuffer = CreateCompatibleBitmap(hdc, rect->right, rect->bottom);
     HBITMAP hbmOldBuffer = (HBITMAP)SelectObject(hdcBuffer,hbmBuffer);
     HDC hdcMem = CreateCompatibleDC(hdc);
-    HBITMAP hbmOld = (HBITMAP) SelectObject( hdcMem, hbmbackground);
-    BitBlt(hdcBuffer, background.x, background.y, background.width, background.height, hdcMem, 0, 0, SRCCOPY);
 
-    (HBITMAP)SelectObject(hdcMem, hbmLivesMask);
-    BitBlt(hdcBuffer, lives.x, lives.y, lives.width, lives.height, hdcMem, 0, 0, SRCAND);
+    backgroundSprite.draw(hdcBuffer);
 
-    (HBITMAP)SelectObject(hdcMem, hbmLives);
-    BitBlt(hdcBuffer, lives.x, lives.y, lives.width, lives.height, hdcMem, 0, 0, SRCPAINT);
-
-    (HBITMAP)SelectObject(hdcMem, hbmScoreMask);
-    BitBlt(hdcBuffer, score.x, score.y, score.width, score.height, hdcMem, 0, 0, SRCAND);
-
-    (HBITMAP)SelectObject(hdcMem, hbmScore);
-    BitBlt(hdcBuffer, score.x, score.y, score.width, score.height, hdcMem, 0, 0, SRCPAINT);
-
-    (HBITMAP)SelectObject(hdcMem, hbmSniperOneMask);
-    BitBlt(hdcBuffer, sniperOne.x, sniperOne.y, sniperOne.width, sniperOne.height, hdcMem, 2*sniperOne.width, 0, SRCAND);
-
-    (HBITMAP)SelectObject(hdcMem, hbmSniperOne);
-    BitBlt(hdcBuffer, sniperOne.x, sniperOne.y, sniperOne.width, sniperOne.height, hdcMem, 2*sniperOne.width, 0, SRCPAINT);
-
-
+    scoreSprite.draw(hdcBuffer, 400, 22, 1, false);
+    livesSprite.draw(hdcBuffer, 10, 10, 1, false);
+    sniperOneSprite.draw(hdcBuffer, 430, 190, 3, false);
     if(idle && !jump && !shoot)
     {
         SelectObject(hdcMem, hbmsoldierIdleMask);
@@ -548,13 +504,9 @@ void DrawAnimation (HDC hdc, RECT * rect)
 
     for(auto bullet : bullet_sprites)
     {
-        SelectObject(hdcMem, hbmbulletMask);
-        BitBlt(hdcBuffer, bullet->x, bullet->y, bullet->width, bullet->height, hdcMem, 0, 0, SRCAND);
-        SelectObject(hdcMem, hbmbullet);
-        BitBlt(hdcBuffer, bullet->x, bullet->y, bullet->width, bullet->height, hdcMem, 0, 0, SRCPAINT);
+        bulletSprite.draw(hdcBuffer, bullet->x, bullet->y, 1, false);
     }
 
-    SelectObject(hdcMem, hbmOld);
     DeleteDC(hdcMem);
 
     BitBlt(hdc, 0, 0, rect -> right, rect -> bottom, hdcBuffer, 0, 0, SRCCOPY);

@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1580643231 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\main.cpp
+1580653887 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\main.cpp
 	<tchar.h>
 	<windows.h>
 	<stdio.h>
@@ -7,4 +7,24 @@
 	<iostream>
 	<vector>
 	<map>
+	"sprite.hpp"
+
+1580651332 c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\sprite.hpp
+	<string>
+	<stdexcept>
+	<vector>
+	<iostream>
+	<windows.h>
+
+1580651344 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\sprite.cpp
+	"sprite.hpp"
+
+1580654572 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\background.cpp
+	"background.hpp"
+
+1580654747 c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\background.hpp
+	<windows.h>
+	<string>
+	<stdexcept>
+	<iostream>
 
