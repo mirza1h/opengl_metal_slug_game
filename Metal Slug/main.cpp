@@ -14,7 +14,7 @@
 #include <vector>
 #include <map>
 
-const int SOLDIER_SPEED = 8;
+const int SOLDIER_SPEED = 4;
 const int BULLET_SPEED = 30;
 const int WAIT_TIME = 120;
 const int pauseTime = 20;
@@ -62,6 +62,7 @@ int idleAnimationCounter = 0;
 int jumpCounterX = 0;
 int jumpCounterY = 0;
 int shootCounter = 0;
+int mapSegementCount = 1;
 bool idle = true;
 bool jump = false;
 bool falling = false;
@@ -250,8 +251,16 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
 {
     RECT rect;
     static int width, height;
+    int mouseX, mouseY;
     switch (message)                  /* handle the messages */
     {
+    case WM_LBUTTONDOWN:
+        mouseX = GET_X_LPARAM(lParam);
+        mouseY = GET_Y_LPARAM(lParam);
+        printf("x: %d\n", mouseX);
+        printf("y: %d\n", mouseY);
+        break;
+
     case WM_SIZE:
         width = LOWORD(lParam);
         height = HIWORD(lParam);
@@ -338,6 +347,19 @@ void Bullet(int number_of_bullets)
         bullet_sprites.push_back(bullet_sprite);
     }
 }
+
+void PrintText(HDC hdc,std::string text, int x, int y)
+{
+    HFONT hFont,hTmp;
+    hFont=CreateFont(28,0,0,0,FW_BOLD,0,0,0,0,0,0,NONANTIALIASED_QUALITY,FF_SCRIPT,"SYSTEM_FIXED_FONT");
+    hTmp=(HFONT)SelectObject(hdc,hFont);
+    SIZE dim;
+    SetBkMode(hdc, TRANSPARENT);
+    GetTextExtentPoint32(hdc, text.c_str(), text.size(), &dim);
+    TextOut(hdc,x,y,text.c_str(),text.size());
+    DeleteObject(SelectObject(hdc,hTmp));
+}
+
 
 void UpdateSprites(RECT * rect)
 {
@@ -454,12 +476,13 @@ void DrawAnimation (HDC hdc, RECT * rect)
         BitBlt(hdcBuffer, soldier.x, soldier.y, soldierIdle.width, soldierIdle.height, hdcMem, idleAnimationCounter*soldierIdle.width, 0, SRCPAINT);
 
     }
-    else if (shoot && !jump) {
-            SelectObject(hdcMem, hbmsoldierShootMask);
-            BitBlt(hdcBuffer, soldier.x, soldier.y, soldierShoot.width, soldierShoot.height, hdcMem, shootCounter*soldierShoot.width, 0,SRCAND);
+    else if (shoot && !jump)
+    {
+        SelectObject(hdcMem, hbmsoldierShootMask);
+        BitBlt(hdcBuffer, soldier.x, soldier.y, soldierShoot.width, soldierShoot.height, hdcMem, shootCounter*soldierShoot.width, 0,SRCAND);
 
-            SelectObject(hdcMem, hbmsoldierShoot);
-            BitBlt(hdcBuffer, soldier.x, soldier.y, soldierShoot.width, soldierShoot.height, hdcMem, shootCounter*soldierShoot.width, 0, SRCPAINT);
+        SelectObject(hdcMem, hbmsoldierShoot);
+        BitBlt(hdcBuffer, soldier.x, soldier.y, soldierShoot.width, soldierShoot.height, hdcMem, shootCounter*soldierShoot.width, 0, SRCPAINT);
     }
     else if(jump)
     {
@@ -487,7 +510,8 @@ void DrawAnimation (HDC hdc, RECT * rect)
         }
 
     }
-    else if(shoot && !jump) {
+    else if(shoot && !jump)
+    {
         ++shootCounter;
         if( shootCounter == 3)
         {
