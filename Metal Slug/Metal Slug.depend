@@ -1,8 +1,9 @@
 # depslib dependency file v1.0
-1580591949 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\main.cpp
+1580643231 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\main.cpp
 	<tchar.h>
 	<windows.h>
 	<stdio.h>
+	<windowsx.h>
 	<iostream>
 	<vector>
 	<map>

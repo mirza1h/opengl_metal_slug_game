@@ -9,11 +9,12 @@
 #include <tchar.h>
 #include <windows.h>
 #include <stdio.h>
+#include <windowsx.h>
 #include <iostream>
 #include <vector>
 #include <map>
 
-const int SOLDIER_SPEED = 2;
+const int SOLDIER_SPEED = 4;
 const int BULLET_SPEED = 30;
 const int WAIT_TIME = 120;
 const int pauseTime = 20;
@@ -41,6 +42,7 @@ Object bullet;
 Object soldier, soldierIdle, soldierJump, soldierShoot, soldierMoveShoot, soldierDeath;
 Object lives;
 Object score;
+Object sniperOne;
 
 std::vector<Object *> bullet_sprites;
 std::map<int,int> terrainMappings;
@@ -54,11 +56,13 @@ HBITMAP hbmsoldierShoot, hbmsoldierShootMask;
 HBITMAP hbmsoldierMoveShoot, hbmsoldierMoveShootMask;
 HBITMAP hbmLives,hbmLivesMask;
 HBITMAP hbmScore,hbmScoreMask;
+HBITMAP hbmSniperOne,hbmSniperOneMask;
 int animationCounter = 0;
 int idleAnimationCounter = 0;
 int jumpCounterX = 0;
 int jumpCounterY = 0;
 int shootCounter = 0;
+int mapSegementCount = 1;
 bool idle = true;
 bool jump = false;
 bool falling = false;
@@ -171,6 +175,8 @@ BOOL Initialize(void)
     hbmLivesMask = (HBITMAP) LoadImage(NULL, "assets/lives_white.bmp", IMAGE_BITMAP, 0,0, LR_LOADFROMFILE);
     hbmScore = (HBITMAP) LoadImage(NULL, "assets/score_black.bmp", IMAGE_BITMAP, 0,0, LR_LOADFROMFILE);
     hbmScoreMask = (HBITMAP) LoadImage(NULL, "assets/score_white.bmp", IMAGE_BITMAP, 0,0, LR_LOADFROMFILE);
+    hbmSniperOne = (HBITMAP) LoadImage(NULL, "assets/sniper_gauche/sniper_gauche_idle_black.bmp", IMAGE_BITMAP, 0,0, LR_LOADFROMFILE);
+    hbmSniperOneMask = (HBITMAP) LoadImage(NULL, "assets/sniper_gauche/sniper_gauche_idle_white.bmp", IMAGE_BITMAP, 0,0, LR_LOADFROMFILE);
 
     GetObject(hbmbackground,sizeof(BITMAP),&bitmap);
     background.width = bitmap.bmWidth;
@@ -179,7 +185,6 @@ BOOL Initialize(void)
     GetObject(hbmsoldierJumpMask,sizeof(BITMAP),&bitmap);
     soldierJump.width = bitmap.bmWidth/4;
     soldierJump.height = bitmap.bmHeight/3;
-    std::cout<< bitmap.bmWidth << std::endl;
 
     GetObject(hbmsoldierMoveShoot,sizeof(BITMAP),&bitmap);
     soldierMoveShoot.width = bitmap.bmWidth/4;
@@ -218,20 +223,26 @@ BOOL Initialize(void)
     score.x = 400;
     score.y = 22;
 
-    terrainMappings[16] = 195;
-    terrainMappings[18] = 190;
-    terrainMappings[20] = 180;
-    terrainMappings[22] = 180;
-    terrainMappings[24] = 185;
-    terrainMappings[26] = 195;
-    terrainMappings[28] = 200;
-    terrainMappings[36] = 200;
-    terrainMappings[38] = 190;
-    terrainMappings[54] = 185;
-    terrainMappings[56] = 170;
-    terrainMappings[82] = 200;
-    terrainMappings[160] = 220;
-    terrainMappings[170] = 230;
+    GetObject(hbmSniperOne, sizeof(BITMAP), &bitmap);
+    sniperOne.width = bitmap.bmWidth/3;
+    sniperOne.height = bitmap.bmHeight;
+    sniperOne.x = 430;
+    sniperOne.y = 190;
+
+//    terrainMappings[16] = 195;
+//    terrainMappings[18] = 190;
+//    terrainMappings[20] = 180;
+//    terrainMappings[22] = 180;
+//    terrainMappings[24] = 185;
+//    terrainMappings[26] = 195;
+//    terrainMappings[28] = 200;
+//    terrainMappings[36] = 200;
+//    terrainMappings[38] = 190;
+//    terrainMappings[54] = 185;
+//    terrainMappings[56] = 170;
+//    terrainMappings[82] = 200;
+//    terrainMappings[160] = 220;
+//    terrainMappings[170] = 230;
     return TRUE;
 }
 /*  This function is called by the Windows function DispatchMessage()  */
@@ -240,8 +251,16 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
 {
     RECT rect;
     static int width, height;
+    int mouseX, mouseY;
     switch (message)                  /* handle the messages */
     {
+    case WM_LBUTTONDOWN:
+        mouseX = GET_X_LPARAM(lParam);
+        mouseY = GET_Y_LPARAM(lParam);
+        printf("x: %d\n", mouseX);
+        printf("y: %d\n", mouseY);
+        break;
+
     case WM_SIZE:
         width = LOWORD(lParam);
         height = HIWORD(lParam);
@@ -329,11 +348,21 @@ void Bullet(int number_of_bullets)
     }
 }
 
+void PrintText(HDC hdc,std::string text, int x, int y)
+{
+    HFONT hFont,hTmp;
+    hFont=CreateFont(28,0,0,0,FW_BOLD,0,0,0,0,0,0,NONANTIALIASED_QUALITY,FF_SCRIPT,"SYSTEM_FIXED_FONT");
+    hTmp=(HFONT)SelectObject(hdc,hFont);
+    SIZE dim;
+    SetBkMode(hdc, TRANSPARENT);
+    GetTextExtentPoint32(hdc, text.c_str(), text.size(), &dim);
+    TextOut(hdc,x,y,text.c_str(),text.size());
+    DeleteObject(SelectObject(hdc,hTmp));
+}
+
+
 void UpdateSprites(RECT * rect)
 {
-      std::cout << "x: "<<soldier.x<< std::endl;
-    std::cout << "y: "<<soldier.y<< std::endl;
-
     if(jump)
     {
 
@@ -356,7 +385,6 @@ void UpdateSprites(RECT * rect)
         }
     }
 
-
     for(auto bullet : bullet_sprites)
     {
         if(bullet->x < rect->right + bullet->width)
@@ -365,23 +393,15 @@ void UpdateSprites(RECT * rect)
         }
     }
     // Move map as soldier moves
-    if(soldier.x > 0 && soldier.x <= 292)
-        background.x = -soldier.x*8;
+    if(soldier.x == 540)
+    {
+        background.x = -540 * mapSegementCount;
+        soldier.x = 0;
+        ++mapSegementCount;
+    }
     // If there's a terrain change, update y position
     if(terrainMappings.count(soldier.x) == 1 && !jump && soldier.x <= terrainMappings[soldier.x])
         soldier.y = terrainMappings[soldier.x];
-}
-
-void PrintText(HDC hdc,std::string text, int x, int y)
-{
-    HFONT hFont,hTmp;
-    hFont=CreateFont(26,0,0,0,FW_BOLD,0,0,0,0,0,0,NONANTIALIASED_QUALITY,FF_SCRIPT,"SYSTEM_FIXED_FONT");
-    hTmp=(HFONT)SelectObject(hdc,hFont);
-    SIZE dim;
-    SetBkMode(hdc, TRANSPARENT);
-    GetTextExtentPoint32(hdc, text.c_str(), text.size(), &dim);
-    TextOut(hdc,x,y,text.c_str(),text.size());
-    DeleteObject(SelectObject(hdc,hTmp));
 }
 
 void move_animation(int key, RECT* rect)
@@ -417,7 +437,6 @@ void move_animation(int key, RECT* rect)
         }
         break;
     }
-
 }
 
 void DrawAnimation (HDC hdc, RECT * rect)
@@ -430,16 +449,22 @@ void DrawAnimation (HDC hdc, RECT * rect)
     BitBlt(hdcBuffer, background.x, background.y, background.width, background.height, hdcMem, 0, 0, SRCCOPY);
 
     (HBITMAP)SelectObject(hdcMem, hbmLivesMask);
-    BitBlt(hdcBuffer, lives.x, lives.y, lives.width, lives.height, hdcMem,0, 0, SRCAND);
+    BitBlt(hdcBuffer, lives.x, lives.y, lives.width, lives.height, hdcMem, 0, 0, SRCAND);
 
     (HBITMAP)SelectObject(hdcMem, hbmLives);
     BitBlt(hdcBuffer, lives.x, lives.y, lives.width, lives.height, hdcMem, 0, 0, SRCPAINT);
 
     (HBITMAP)SelectObject(hdcMem, hbmScoreMask);
-    BitBlt(hdcBuffer, score.x, score.y, score.width, score.height, hdcMem,0, 0, SRCAND);
+    BitBlt(hdcBuffer, score.x, score.y, score.width, score.height, hdcMem, 0, 0, SRCAND);
 
     (HBITMAP)SelectObject(hdcMem, hbmScore);
     BitBlt(hdcBuffer, score.x, score.y, score.width, score.height, hdcMem, 0, 0, SRCPAINT);
+
+    (HBITMAP)SelectObject(hdcMem, hbmSniperOneMask);
+    BitBlt(hdcBuffer, sniperOne.x, sniperOne.y, sniperOne.width, sniperOne.height, hdcMem, 2*sniperOne.width, 0, SRCAND);
+
+    (HBITMAP)SelectObject(hdcMem, hbmSniperOne);
+    BitBlt(hdcBuffer, sniperOne.x, sniperOne.y, sniperOne.width, sniperOne.height, hdcMem, 2*sniperOne.width, 0, SRCPAINT);
 
 
     if(idle && !jump && !shoot)
@@ -451,12 +476,13 @@ void DrawAnimation (HDC hdc, RECT * rect)
         BitBlt(hdcBuffer, soldier.x, soldier.y, soldierIdle.width, soldierIdle.height, hdcMem, idleAnimationCounter*soldierIdle.width, 0, SRCPAINT);
 
     }
-    else if (shoot && !jump) {
-            SelectObject(hdcMem, hbmsoldierShootMask);
-            BitBlt(hdcBuffer, soldier.x, soldier.y, soldierShoot.width, soldierShoot.height, hdcMem, shootCounter*soldierShoot.width, 0,SRCAND);
+    else if (shoot && !jump)
+    {
+        SelectObject(hdcMem, hbmsoldierShootMask);
+        BitBlt(hdcBuffer, soldier.x, soldier.y, soldierShoot.width, soldierShoot.height, hdcMem, shootCounter*soldierShoot.width, 0,SRCAND);
 
-            SelectObject(hdcMem, hbmsoldierShoot);
-            BitBlt(hdcBuffer, soldier.x, soldier.y, soldierShoot.width, soldierShoot.height, hdcMem, shootCounter*soldierShoot.width, 0, SRCPAINT);
+        SelectObject(hdcMem, hbmsoldierShoot);
+        BitBlt(hdcBuffer, soldier.x, soldier.y, soldierShoot.width, soldierShoot.height, hdcMem, shootCounter*soldierShoot.width, 0, SRCPAINT);
     }
     else if(jump)
     {
@@ -484,7 +510,8 @@ void DrawAnimation (HDC hdc, RECT * rect)
         }
 
     }
-    else if(shoot && !jump) {
+    else if(shoot && !jump)
+    {
         ++shootCounter;
         if( shootCounter == 3)
         {
