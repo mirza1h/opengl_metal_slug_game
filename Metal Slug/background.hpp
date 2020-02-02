@@ -5,6 +5,7 @@
 #include <string>
 #include <stdexcept>
 #include <iostream>
+#include <map>
 
 class Background{
     public:

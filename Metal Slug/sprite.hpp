@@ -50,7 +50,8 @@ class Player{
     void moveUp(std::size_t n);
     void moveDown(std::size_t n);
     void moveToPoint(POINT pt);
-
+    void setX(int x) {xPos = x;}
+    void setY(int y) {yPos = y;}
     int getX() const { return xPos; }
     int getY() const { return yPos; }
     int getWidth() const { return width; }
@@ -94,7 +95,7 @@ class Player{
     Sprite death;
     Sprite shoot;
     Sprite jump;
-    bool direction;
+    bool direction = true;
     bool humanPlayer = false;
     bool falling = false;
     bool dead = false;

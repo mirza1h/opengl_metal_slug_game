@@ -39,20 +39,14 @@
 //         throw std::invalid_argument("ProjectileType(): incompatibile dimensions of img and bitmaskImg");
 // }
 
-bool Bullet::update(RECT * rect)
+bool Bullet::update()
 {
-    if(direction) {
-     if(this->xPos < rect->right + this->projectile.getWidth())
-        {
-            this->xPos += 20;
+    if(direction == true) {
+            xPos += BULLET_SPEED;
             return true;
-        }
     } else {
-        if(this->xPos < rect->left - this->projectile.getWidth())
-        {
-            this->xPos-= 20;
+            xPos -= BULLET_SPEED;
             return true;
-        }
     }
     return false;
 }
