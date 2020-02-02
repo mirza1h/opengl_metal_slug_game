@@ -38,6 +38,8 @@
 			<Add library="comctl32" />
 		</Linker>
 		<Unit filename="main.cpp" />
+		<Unit filename="sprite.cpp" />
+		<Unit filename="sprite.hpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

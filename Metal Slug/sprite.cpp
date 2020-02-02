@@ -27,7 +27,6 @@ Player::Player(int x, int y, int w, int h, RECT moveRect, bool dir, int numLives
 }
 
 
-
 void Player::moveLeft(std::size_t n){
   xPos -= n;
   if(xPos - width/2 < moveRectangle.left)
@@ -130,8 +129,6 @@ Sprite::Sprite(const std::string& filenameImg,
      columns = s.columns;
      rows = s.rows;
      imgInfo = s.imgInfo;
-
-
  }
 
 
@@ -145,7 +142,6 @@ void Player::moveToPoint(POINT pt)
 
     xPos = pt.x;
     yPos = pt.y;
-    dynamicAnimationCounter++;
 }
 
 POINT Player::getCurrentPosition() const

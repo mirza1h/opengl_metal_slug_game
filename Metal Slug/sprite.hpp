@@ -7,9 +7,6 @@
 #include <iostream>
 #include <windows.h>
 
-
-
-
 class Sprite{
   public:
     Sprite(const std::string& filenameImg,
@@ -21,6 +18,7 @@ class Sprite{
 
     Sprite() = default;
     Sprite(const Sprite&);
+    Sprite() = default;
 
     int getWidth() const { return imgInfo.bmWidth / columns; }
     int getHeight() const { return imgInfo.bmHeight / rows; }
@@ -45,8 +43,7 @@ class Sprite{
 class Player{
   public:
     Player() = default;
-    Player(int x, int y, int w, int h, RECT moveRect, bool direction);
-
+    Player(int x, int y, int w, int h, RECT moveRect, bool dir, int numLives);
     void playerJump();
     void moveLeft(std::size_t n);
     void moveRight(std::size_t n);
