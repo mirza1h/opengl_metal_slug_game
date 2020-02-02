@@ -11,47 +11,27 @@ Player::Player(int x, int y, int w, int h, RECT moveRect, bool dir, int numLives
   moveRectangle= moveRect;
   direction = dir;
   numLives = numLives;
-
-  if( xPos - width/2 < moveRectangle.left || xPos + width/2 > moveRectangle.right )
-  {
-    std::cout << "xPos: " << xPos << std::endl;
-    std::cout << "width/2: " << width/2 << std::endl;
-    std::cout << "left: " << moveRect.left << std::endl;
-    std::cout << "right: " << moveRect.right << std::endl;
-    throw std::invalid_argument("Player(): invalid player x position: ");
-  }
-
-  if( yPos - height/2 < moveRectangle.top || yPos + height/2 > moveRectangle.bottom )
-    throw std::invalid_argument("Player(): invalid player y position: ");
 }
 
 
 void Player::moveLeft(std::size_t n){
   xPos -= n;
-  if(xPos - width/2 < moveRectangle.left)
-    xPos = moveRectangle.left + width/2;
   direction = false;
 }
 
 void Player::moveRight(std::size_t n){
   xPos += n;
- if(xPos + width/2 > moveRectangle.right)
-    xPos = moveRectangle.right - width/2;
   direction = true;
 }
 
 void Player::moveUp(std::size_t n){
   yPos -= n;
-  // if(yPos - height/2 < moveRectangle.top)
-  //   yPos = moveRectangle.top + height/2;
 }
 
 
 
 void Player::moveDown(std::size_t n){
   yPos += n;
-  // if(yPos + height/2 > moveRectangle.bottom)
-  //   yPos = moveRectangle.bottom - height/2;
 }
 
 
