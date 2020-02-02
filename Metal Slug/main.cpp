@@ -23,6 +23,7 @@ void UpdateSprites (RECT * rect);
 void move_animation(int key, RECT* rect);
 void Bullet (int number_of_bullets = 1);
 void Render(HWND);
+void PrintText(HDC, std::string, int, int);
 BOOL Initialize(void);
 typedef struct ObjectInfo
 {
@@ -245,12 +246,6 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         width = LOWORD(lParam);
         height = HIWORD(lParam);
         break;
-    case WM_RBUTTONDOWN:
-        Bullet(2);
-        break;
-    case WM_LBUTTONDOWN:
-        Bullet();
-        break;
     case WM_KEYDOWN:
     {
 
@@ -376,6 +371,21 @@ void UpdateSprites(RECT * rect)
     if(terrainMappings.count(soldier.x) == 1 && !jump && soldier.x <= terrainMappings[soldier.x])
         soldier.y = terrainMappings[soldier.x];
 }
+<<<<<<< HEAD
+=======
+
+void PrintText(HDC hdc,std::string text, int x, int y)
+{
+    HFONT hFont,hTmp;
+    hFont=CreateFont(26,0,0,0,FW_BOLD,0,0,0,0,0,0,NONANTIALIASED_QUALITY,FF_SCRIPT,"SYSTEM_FIXED_FONT");
+    hTmp=(HFONT)SelectObject(hdc,hFont);
+    SIZE dim;
+    SetBkMode(hdc, TRANSPARENT);
+    GetTextExtentPoint32(hdc, text.c_str(), text.size(), &dim);
+    TextOut(hdc,x,y,text.c_str(),text.size());
+    DeleteObject(SelectObject(hdc,hTmp));
+}
+>>>>>>> 519d156ff5e47b8f08be87741ac82d788724dff2
 
 void move_animation(int key, RECT* rect)
 {
@@ -406,12 +416,13 @@ void move_animation(int key, RECT* rect)
         if(soldier.y < rect->bottom + soldier.height)
         {
             idle = false;
-            soldier.y += SOLDIER_SPEED;
+            //soldier.y += SOLDIER_SPEED;
         }
         break;
     }
 
 }
+
 void DrawAnimation (HDC hdc, RECT * rect)
 {
     HDC hdcBuffer = CreateCompatibleDC(hdc);
@@ -519,12 +530,12 @@ void DrawAnimation (HDC hdc, RECT * rect)
         BitBlt(hdcBuffer, bullet->x, bullet->y, bullet->width, bullet->height, hdcMem, 0, 0, SRCPAINT);
     }
 
-
     SelectObject(hdcMem, hbmOld);
     DeleteDC(hdcMem);
 
     BitBlt(hdc, 0, 0, rect -> right, rect -> bottom, hdcBuffer, 0, 0, SRCCOPY);
-
+    PrintText(hdc, "2", 78, 20);
+    PrintText(hdc, "0", 500, 20);
     SelectObject(hdcBuffer, hbmOldBuffer);
     DeleteDC(hdcBuffer);
     DeleteObject(hbmBuffer);
