@@ -2,8 +2,7 @@
 
 
 
-Player::Player(int x, int y, int w, int h, RECT moveRect, bool dir, int numLives = 3):
-  
+Player::Player(int x, int y, int w, int h, RECT moveRect, bool dir, int numLives = 3)
 {
   xPos=  x;
   yPos= y;
@@ -19,11 +18,11 @@ Player::Player(int x, int y, int w, int h, RECT moveRect, bool dir, int numLives
     std::cout << "width/2: " << width/2 << std::endl;
     std::cout << "left: " << moveRect.left << std::endl;
     std::cout << "right: " << moveRect.right << std::endl;
-    throw std::invalid_argument("Player(): invalid player x position: " + std::to_string(x));
+    throw std::invalid_argument("Player(): invalid player x position: ");
   }
 
   if( yPos - height/2 < moveRectangle.top || yPos + height/2 > moveRectangle.bottom )
-    throw std::invalid_argument("Player(): invalid player y position: " + std::to_string(y));
+    throw std::invalid_argument("Player(): invalid player y position: ");
 }
 
 
@@ -57,11 +56,11 @@ void Player::moveDown(std::size_t n){
 
 
 void Player::playerJump() {
-   if(falling) 
+   if(falling)
    {
       moveDown(25);
-   } 
-   else 
+   }
+   else
    {
      moveUp(25);
    }
@@ -122,7 +121,7 @@ Sprite::Sprite(const std::string& filenameImg,
     throw std::invalid_argument("Sprite(): incompatibile dimensions of img and bitmaskImg");
 }
 
- Sprite::Sprite(const Sprite& s):
+ Sprite::Sprite(const Sprite& s)
  {
      img = s.img;
      imgBitmask = s.imgBitmask;

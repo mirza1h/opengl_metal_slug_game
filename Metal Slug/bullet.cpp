@@ -1,4 +1,4 @@
-#include "projectile.hpp"
+#include "bullet.hpp"
 
 
 
@@ -44,13 +44,13 @@ bool Bullet::update(RECT * rect)
     if(direction) {
      if(this->xPos < rect->right + this->projectile.getWidth())
         {
-            bullet->x += 20;
+            this->xPos += 20;
             return true;
         }
     } else {
         if(this->xPos < rect->left - this->projectile.getWidth())
         {
-            bullet->x -= 20;
+            this->xPos-= 20;
             return true;
         }
     }
@@ -61,7 +61,7 @@ bool Bullet::update(RECT * rect)
 
 void Bullet::render(HDC hdc)
 {
-  projectile.draw(hdc, xPos, yPos);
+  projectile.draw(hdc, xPos, yPos, 0, false);
 }
 
 
@@ -71,13 +71,14 @@ void Bullet::checkInput() {}
 
 bool Bullet::isHit(const Player& target)
 {
+
     if(direction) {
-      return (xPos >= target.getX() && xPos <= target.getX() + target.getWidth()) 
-             && (yPos >= target.getY() && ypos <= taget.getY() + taget.getHeight());
+      return (xPos >= target.getX() && xPos <= target.getX() + target.getWidth())
+             && (yPos >= target.getY() && yPos <= target.getY() + target.getHeight());
     } else {
-        return (xPos >= target.getX() && xPos <= target.getX() + target.getWidth()) 
-             && (yPos >= target.getY() && ypos <= taget.getY() + taget.getHeight())
-             && target.humanPlayer();
+        return (xPos >= target.getX() && xPos <= target.getX() + target.getWidth())
+             && (yPos >= target.getY() && yPos <= target.getY() + target.getHeight())
+             && target.getHumanPlayer();
     }
 }
 

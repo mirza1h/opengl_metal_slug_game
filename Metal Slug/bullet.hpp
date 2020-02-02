@@ -17,27 +17,24 @@ using std::max;
 
 class Bullet {
     public:
-
-        Bullet(const Player& p, const Sprite& s, bool d):
+        Bullet(const Player& p, const Sprite& s, bool d): source(p)
         {
-            player = p;
             projectile = s;
             direction = d;
             if(!d) {
 
             this->xPos= p.getX() - s.getWidth() - 10;
-            this->yPos = p.getY() + s.getheight()/4 ;
+            this->yPos = p.getY() + s.getHeight()/4 ;
 
             } else {
                 this->xPos= p.getX() + s.getWidth() - 10;
-                this->yPos = p.getY() + s.getheight()/4 ;
+                this->yPos = p.getY() + s.getHeight()/4 ;
             }
-        
+
         }
 
-        Bullet(const Bullet& ps):
+        Bullet(const Bullet& ps): source(ps.source)
         {
-            source = ps.source;
             projectile = ps.projectile;
             xPos = ps.xPos;
             yPos = ps.yPos;
@@ -49,7 +46,7 @@ class Bullet {
         bool isHit(const Player& target);
 
     private:
-        const Player& source;
+        const Player source;
         Sprite projectile;
         int xPos;
         int yPos;

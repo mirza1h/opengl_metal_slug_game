@@ -18,7 +18,6 @@ class Sprite{
 
     Sprite() = default;
     Sprite(const Sprite&);
-    Sprite() = default;
 
     int getWidth() const { return imgInfo.bmWidth / columns; }
     int getHeight() const { return imgInfo.bmHeight / rows; }
@@ -53,6 +52,8 @@ class Player{
 
     int getX() const { return xPos; }
     int getY() const { return yPos; }
+    int getWidth() const { return width; }
+    int getHeight() const { return height; }
     POINT getCurrentPosition() const;
 
     bool getDirection() const { return direction; }
@@ -71,9 +72,9 @@ class Player{
     void setShoot(Sprite& shootSprite) { shoot = shootSprite;}
     Sprite& getShoot() { return shoot; }
 
-    void setFalling() { falling = true; }
+    void setPlayerFalling() { falling = true; }
     void setHumanPlayer() { humanPlayer = true; }
-    void getHumanPlayer() { return humanPlayer; }
+    bool getHumanPlayer() const { return humanPlayer; }
     void resetFalling() { falling = false; }
     bool getFalling() const { return falling; }
     void setDead() { dead = true; }
