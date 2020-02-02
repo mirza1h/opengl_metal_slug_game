@@ -21,6 +21,7 @@ class Sprite{
 
     int getWidth() const { return imgInfo.bmWidth / columns; }
     int getHeight() const { return imgInfo.bmHeight / rows; }
+    int getBmpWidth() const { return imgInfo.bmWidth; }
 
     int getColumnCount() const { return columns; }
     int getRowsCount() const { return rows; }

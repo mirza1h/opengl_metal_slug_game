@@ -55,6 +55,9 @@ Sprite bulletSprite = Sprite("assets/cartouche_droite_bullet_black.bmp","assets/
 Sprite scoreSprite = Sprite("assets/score_black.bmp","assets/score_white.bmp", 0, 0, 1, 1);
 Sprite livesSprite = Sprite("assets/lives_black.bmp","assets/lives_white.bmp", 0, 0, 1, 1);
 Sprite sniperOneSprite = Sprite("assets/sniper_gauche/sniper_gauche_idle_black.bmp","assets/sniper_gauche/sniper_gauche_idle_white.bmp", 0, 0, 3, 1);
+Sprite playerIdle = Sprite("assets/player/idle_right_black.bmp", "assets/player/idle_right_white.bmp", 0, 0, 4, 1);
+Sprite playerMoveRight = Sprite("assets/player/move_right_black.bmp", "assets/player/move_right_white.bmp", 0, 0, 6, 1);
+
 Background backgroundSprite = Background("assets/stage1.bmp",0,0);
 
 int animationCounter = 0;
@@ -159,28 +162,14 @@ BOOL Initialize(HWND hwnd)
 {
     SetTimer(hwnd, SNIPER_TIMER, SNIPER_FIRE_TIME, NULL);
     BITMAP bitmap;
-    hbmsoldierMask = (HBITMAP)LoadImage(NULL, "assets/player/move_right_white.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    hbmsoldier = (HBITMAP)LoadImage(NULL, "assets/player/move_right_black.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    hbmsoldierIdleMask = (HBITMAP)LoadImage(NULL, "assets/player/idle_right_white.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    hbmsoldierIdle = (HBITMAP)LoadImage(NULL, "assets/player/idle_right_black.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     hbmsoldierJumpMask = (HBITMAP)LoadImage(NULL, "assets/player/jump_right_white.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     hbmsoldierJump = (HBITMAP)LoadImage(NULL, "assets/player/jump_right_black.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     hbmsoldierShoot = (HBITMAP)LoadImage(NULL, "assets/player/shoot_black.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     hbmsoldierShootMask = (HBITMAP)LoadImage(NULL, "assets/player/shoot_white.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    hbmsoldierMoveShoot = (HBITMAP)LoadImage(NULL, "assets/player/move_and_shoot_black.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    hbmsoldierMoveShootMask = (HBITMAP)LoadImage(NULL, "assets/player/move_and_shoot_white.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
     GetObject(hbmsoldierJumpMask,sizeof(BITMAP),&bitmap);
     soldierJump.width = bitmap.bmWidth/4;
     soldierJump.height = bitmap.bmHeight/3;
-
-    GetObject(hbmsoldierMoveShoot,sizeof(BITMAP),&bitmap);
-    soldierMoveShoot.width = bitmap.bmWidth/4;
-    soldierMoveShoot.height = bitmap.bmHeight;
-
-    GetObject(hbmsoldierIdleMask,sizeof(BITMAP),&bitmap);
-    soldierIdle.width = bitmap.bmWidth/4;
-    soldierIdle.height = bitmap.bmHeight;
 
     GetObject(hbmsoldierShootMask,sizeof(BITMAP),&bitmap);
     soldierShoot.width = bitmap.bmWidth/4;
@@ -423,13 +412,10 @@ void DrawAnimation (HDC hdc, RECT * rect)
     scoreSprite.draw(hdcBuffer, 400, 22, 1, false);
     livesSprite.draw(hdcBuffer, 10, 10, 1, false);
     sniperOneSprite.draw(hdcBuffer, 430, 190, 3, false);
+
     if(idle && !jump && !shoot)
     {
-        SelectObject(hdcMem, hbmsoldierIdleMask);
-        BitBlt(hdcBuffer, soldier.x, soldier.y, soldierIdle.width, soldierIdle.height, hdcMem, idleAnimationCounter*soldierIdle.width, 0,SRCAND);
-
-        SelectObject(hdcMem, hbmsoldierIdle);
-        BitBlt(hdcBuffer, soldier.x, soldier.y, soldierIdle.width, soldierIdle.height, hdcMem, idleAnimationCounter*soldierIdle.width, 0, SRCPAINT);
+        playerIdle.draw(hdcBuffer, 200, 200, idleAnimationCounter, false);
 
     }
     else if (shoot && !jump)
