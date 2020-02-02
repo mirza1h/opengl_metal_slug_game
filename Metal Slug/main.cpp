@@ -371,8 +371,6 @@ void UpdateSprites(RECT * rect)
     if(terrainMappings.count(soldier.x) == 1 && !jump && soldier.x <= terrainMappings[soldier.x])
         soldier.y = terrainMappings[soldier.x];
 }
-<<<<<<< HEAD
-=======
 
 void PrintText(HDC hdc,std::string text, int x, int y)
 {
@@ -385,7 +383,6 @@ void PrintText(HDC hdc,std::string text, int x, int y)
     TextOut(hdc,x,y,text.c_str(),text.size());
     DeleteObject(SelectObject(hdc,hTmp));
 }
->>>>>>> 519d156ff5e47b8f08be87741ac82d788724dff2
 
 void move_animation(int key, RECT* rect)
 {
