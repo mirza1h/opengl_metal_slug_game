@@ -123,7 +123,6 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
                NULL                 /* No Window Creation data */
            );
 
-    //SetWindowLong(hwnd, GWL_STYLE, 0);
     /* Make the window visible on the screen */
     ShowWindow (hwnd, nCmdShow);
     // Gameloop
@@ -336,7 +335,7 @@ void UpdateSprites(RECT * rect)
     }
 
     // Move map as soldier moves
-    if(soldier.getX() == MAP_SEGMENT_LENGTH)
+    if(soldier.getX() >= MAP_SEGMENT_LENGTH)
     {
         backgroundSprite.setX(-MAP_SEGMENT_LENGTH * mapSegementCount);
         soldier.setX(0);
@@ -370,13 +369,6 @@ void move_animation(int key, RECT* rect)
             idle = false;
             move_right = true;
             soldier.moveRight(SOLDIER_SPEED);
-        }
-        break;
-    case VK_DOWN:
-        if(soldier.getY() < rect->bottom + soldier.getHeight())
-        {
-            idle = false;
-            //soldier.y += SOLDIER_SPEED;
         }
         break;
     }
@@ -477,7 +469,6 @@ void DrawAnimation (HDC hdc, RECT * rect)
                     (*it)->setDead();
                    it = enemies.erase(it);
                 }
-                std::cout<<"SoldierOne HIT!"<<std::endl;
             }
         }
 
