@@ -57,7 +57,6 @@ class Player{
     int getHeight() const { return idle.getHeight(); }
 
     POINT getCurrentPosition() const;
-
     bool getDirection() const { return direction; }
 
     void setFalling() { falling = true;}
@@ -73,10 +72,11 @@ class Player{
     Sprite& getJump() { return jump; }
     void setShoot(Sprite& shootSprite) { shoot = shootSprite;}
     Sprite& getShoot() { return shoot; }
-
+    void decreaseNumLives()  {  --numLives;}
     void setPlayerFalling() { falling = true; }
     void setHumanPlayer() { humanPlayer = true; }
     bool getHumanPlayer() const { return humanPlayer; }
+    int getLives() const { return numLives; }
     void resetFalling() { falling = false; }
     bool getFalling() const { return falling; }
     void setDead() { dead = true; }

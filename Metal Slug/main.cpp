@@ -13,6 +13,9 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <memory>
+#include <list>
+
 #include "sprite.hpp"
 #include "background.hpp"
 #include "bullet.hpp"
@@ -30,7 +33,9 @@ void fireBullet(int number_of_bullets, Player);
 void Render(HWND);
 void PrintText(HDC, std::string, int, int);
 BOOL Initialize(HWND);
-std::vector<Bullet> bullets;
+std::list<Bullet*> bullets;
+std::list<Player*> enemies;
+std::vector<int> enemyIdle;
 std::map<int,int> terrainMappings;
 
 RECT temp;
@@ -46,8 +51,11 @@ Sprite soldierShootSprite = Sprite("assets/player/shoot_black.bmp", "assets/play
 
 Background backgroundSprite = Background("assets/stage1.bmp",0,0);
 
-Player sniperOne = Player(430, 190, 0, 0, temp, false, 3);
+Player sniperThree = Player(230, 140, 0, 0, temp, false, 3);
+Player sniperTwo = Player(430, 190, 0, 0, temp, false, 3);
+Player sniperOne = Player(330, 190, 0, 0, temp, false, 3);
 Player soldier = Player(0, 200, 0, 0, temp, true, 1);
+
 
 int animationCounter = 0;
 int idleAnimationCounter = 0;
@@ -150,10 +158,15 @@ BOOL Initialize(HWND hwnd)
     SetTimer(hwnd, SNIPER_TIMER, SNIPER_FIRE_TIME, NULL);
     BITMAP bitmap;
     sniperOne.setIdle(sniperOneSprite);
+    sniperTwo.setIdle(sniperOneSprite);
+    sniperThree.setIdle(sniperOneSprite);
     soldier.setIdle(soldierIdleSprite);
     soldier.setMove(soldierMoveSprite);
     soldier.setJump(soldierJumpSprite);
     soldier.setShoot(soldierShootSprite);
+    enemies.push_back(&sniperOne);
+    enemies.push_back(&sniperTwo);
+    enemies.push_back(&sniperThree);
 
 //    terrainMappings[16] = 195;
 //    terrainMappings[18] = 190;
@@ -190,7 +203,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         switch (wParam)
         {
         case SNIPER_TIMER:
-            //Bullet();
+           // fireBullet(1, sniperOne);
             return 0;
         }
     case WM_SIZE:
@@ -205,7 +218,6 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         {
             shoot = true;
             fireBullet(1, soldier);
-
         }
         break;
     }
@@ -248,7 +260,8 @@ void fireBullet(int number_of_bullets, Player shooter)
 {
     for(int i = 0; i < number_of_bullets; ++i)
     {
-        Bullet bulletObj = Bullet(shooter, bulletSprite, shooter.getDirection());
+
+        Bullet* bulletObj = new Bullet(shooter, bulletSprite, shooter.getDirection());
         bullets.push_back(bulletObj);
     }
 
@@ -299,11 +312,11 @@ void UpdateSprites(RECT * rect)
         soldier.playerJump();
     }
 
-   for(int i = 0; i < bullets.size(); ++i)
+    for(auto it = bullets.begin(); it != bullets.end(); ++it)
     {
-        if(bullets[i].xPos < rect->right)
+        if((*it)->xPos < rect->right)
         {
-            bullets[i].update();
+            (*it)->update();
         }
     }
 
@@ -365,7 +378,11 @@ void DrawAnimation (HDC hdc, RECT * rect)
 
     scoreSprite.draw(hdcBuffer, 400, 22, 1, 0, false);
     livesSprite.draw(hdcBuffer, 10, 10, 1, 0, false);
-    sniperOneSprite.draw(hdcBuffer, 430, 190, 3, 0, false);
+
+    for(auto it = enemies.begin(); it != enemies.end(); it++)
+    {
+        (*it)->getIdle().draw(hdcBuffer, (*it)->getX(), (*it)->getY(), 0, 0, false);
+    }
 
     if(idle && !jump && !shoot)
     {
@@ -430,11 +447,25 @@ void DrawAnimation (HDC hdc, RECT * rect)
         }
     }
 
-     for(auto bullet : bullets)
+    for(auto bullet = bullets.begin(); bullet != bullets.end(); ++bullet)
     {
-        bullet.render(hdcBuffer);
-        if(bullet.isHit(sniperOne))
-            std::cout<<"SoldierOne HIT!"<<std::endl;
+
+        (*bullet)->render(hdcBuffer);
+        for(auto it = enemies.begin(); it != enemies.end(); it++)
+        {
+            if((*bullet)->isHit(**it))
+            {
+
+                bullet = bullets.erase(bullet);
+                (*it)->decreaseNumLives();
+                if((*it)->getLives() == 0) {
+                    (*it)->setDead();
+                   it = enemies.erase(it);
+                }
+                std::cout<<"SoldierOne HIT!"<<std::endl;
+            }
+        }
+
     }
 
     DeleteDC(hdcMem);
@@ -446,4 +477,7 @@ void DrawAnimation (HDC hdc, RECT * rect)
     DeleteDC(hdcBuffer);
     DeleteObject(hbmBuffer);
 }
+
+
+
 
