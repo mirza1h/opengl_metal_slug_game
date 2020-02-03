@@ -36,8 +36,7 @@ class Sprite{
     int rows = 0;
 };
 
-
-
+enum state {Idle, Moving, Shooting, Jumping, Dead, MoveAndJump};
 
 class Player{
   public:
@@ -62,8 +61,8 @@ class Player{
     void setFalling() { falling = true;}
     Sprite& getIdle() { return idle; }
     void setIdle(Sprite& idleSprite) { idle = idleSprite;}
-    Sprite& getMove() { return move; }
-    void setMove(Sprite& moveSprite) { move = moveSprite;}
+    Sprite& getMoving() { return moving; }
+    void setMoving(Sprite& moveSprite) { moving = moveSprite;}
     void setInverseMove(Sprite& inverseMoveSprite) { inverse_move = inverseMoveSprite;}
     Sprite& getInverseMove() { return inverse_move; }
     void setDeath(Sprite& deathSprite) { death = deathSprite; }
@@ -73,15 +72,15 @@ class Player{
     void setShoot(Sprite& shootSprite) { shoot = shootSprite;}
     Sprite& getShoot() { return shoot; }
     void decreaseNumLives()  {  --numLives;}
-    void setPlayerFalling() { falling = true; }
     void setHumanPlayer() { humanPlayer = true; }
     bool getHumanPlayer() const { return humanPlayer; }
     int getLives() const { return numLives; }
+    void flipDirection() { direction = !direction; }
     void resetFalling() { falling = false; }
     bool getFalling() const { return falling; }
-    void setDead() { dead = true; }
-    bool getDead() { return dead;}
-    void flipDirection() { direction = !direction; }
+
+    enum state getPlayerState() { return playerState;}
+    void setPlayerState(enum state newState) {playerState = newState;}
 
   private:
     int xPos;
@@ -91,7 +90,7 @@ class Player{
     int numLives = 3;
     RECT moveRectangle;
     Sprite idle;
-    Sprite move;
+    Sprite moving;
     Sprite inverse_move;
     Sprite death;
     Sprite shoot;
@@ -99,7 +98,7 @@ class Player{
     bool direction = true;
     bool humanPlayer = false;
     bool falling = false;
-    bool dead = false;
+    enum state playerState = Idle;
 };
 
 
