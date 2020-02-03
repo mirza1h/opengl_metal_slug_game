@@ -37,6 +37,10 @@
 			<Add library="kernel32" />
 			<Add library="comctl32" />
 		</Linker>
+		<Unit filename="background.cpp" />
+		<Unit filename="background.hpp" />
+		<Unit filename="bullet.cpp" />
+		<Unit filename="bullet.hpp" />
 		<Unit filename="main.cpp" />
 		<Unit filename="sprite.cpp" />
 		<Unit filename="sprite.hpp" />
