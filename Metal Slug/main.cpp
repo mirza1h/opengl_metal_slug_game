@@ -41,13 +41,13 @@ Sprite sniperOneSprite = Sprite("assets/sniper_gauche/sniper_gauche_idle_black.b
 
 Sprite soldierMoveSprite = Sprite("assets/player/move_right_black.bmp", "assets/player/move_right_white.bmp", 0, 0, 6, 1);
 Sprite soldierIdleSprite = Sprite("assets/player/idle_right_black.bmp", "assets/player/idle_right_white.bmp", 0, 0, 4, 1);
-Sprite soldierJumpSprite = Sprite("assets/player/idle_right_black.bmp", "assets/player/idle_right_white.bmp", 0, 0, 4, 3);
+Sprite soldierJumpSprite = Sprite("assets/player/jump_right_black.bmp", "assets/player/jump_right_white.bmp", 0, 0, 4, 3);
 Sprite soldierShootSprite = Sprite("assets/player/shoot_black.bmp", "assets/player/shoot_white.bmp", 0, 0, 4, 1);
 
 Background backgroundSprite = Background("assets/stage1.bmp",0,0);
 
 Player sniperOne = Player(430, 190, 0, 0, temp, false, 3);
-Player soldier = Player(0, 200, 0, 0, temp, true, 1);
+Player soldierPl = Player(0, 200, soldierIdleSprite.getWidth(), soldierIdleSprite.getHeight(), temp, true, 1);
 
 int animationCounter = 0;
 int idleAnimationCounter = 0;
@@ -57,7 +57,6 @@ int shootCounter = 0;
 int mapSegementCount = 1;
 bool idle = true;
 bool jump = false;
-bool falling = false;
 bool shoot = false;
 bool death = false;
 bool move_right = false;
@@ -150,27 +149,26 @@ BOOL Initialize(HWND hwnd)
 {
     SetTimer(hwnd, SNIPER_TIMER, SNIPER_FIRE_TIME, NULL);
     BITMAP bitmap;
-
     sniperOne.setIdle(sniperOneSprite);
+    soldierPl.setIdle(soldierIdleSprite);
+    soldierPl.setMove(soldierMoveSprite);
+    soldierPl.setJump(soldierJumpSprite);
+    soldierPl.setShoot(soldierShootSprite);
 
-    soldier.setIdle(soldierIdleSprite);
-    soldier.setMove(soldierMoveSprite);
-    soldier.setJump(soldierJumpSprite);
-    soldier.setShoot(soldierShootSprite);
-    //    terrainMappings[16] = 195;
-    //    terrainMappings[18] = 190;
-    //    terrainMappings[20] = 180;
-    //    terrainMappings[22] = 180;
-    //    terrainMappings[24] = 185;
-    //    terrainMappings[26] = 195;
-    //    terrainMappings[28] = 200;
-    //    terrainMappings[36] = 200;
-    //    terrainMappings[38] = 190;
-    //    terrainMappings[54] = 185;
-    //    terrainMappings[56] = 170;
-    //    terrainMappings[82] = 200;
-    //    terrainMappings[160] = 220;
-    //    terrainMappings[170] = 230;
+//    terrainMappings[16] = 195;
+//    terrainMappings[18] = 190;
+//    terrainMappings[20] = 180;
+//    terrainMappings[22] = 180;
+//    terrainMappings[24] = 185;
+//    terrainMappings[26] = 195;
+//    terrainMappings[28] = 200;
+//    terrainMappings[36] = 200;
+//    terrainMappings[38] = 190;
+//    terrainMappings[54] = 185;
+//    terrainMappings[56] = 170;
+//    terrainMappings[82] = 200;
+//    terrainMappings[160] = 220;
+//    terrainMappings[170] = 230;
     return true;
 }
 /*  This function is called by the Windows function DispatchMessage()  */
@@ -192,7 +190,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         switch (wParam)
         {
         case SNIPER_TIMER:
-            //fireBullet();
+            //Bullet();
             return 0;
         }
     case WM_SIZE:
@@ -206,29 +204,8 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         if(wParam == VK_SPACE)
         {
             shoot = true;
-            fireBullet(1,soldier);
-            if(PRESSED(VK_UP))
-            {
-                move_animation(VK_UP, &rect);
-            }
-            else if(PRESSED(VK_DOWN))
-            {
-                move_animation(VK_DOWN, &rect);
-            }
-            else if(PRESSED(VK_LEFT))
-            {
-                if(soldier.getX() > 0)
-                    move_animation(VK_LEFT, &rect);
-            }
-            else if(PRESSED(VK_RIGHT))
-            {
-                if(soldier.getX() < 320)
-                    move_animation(VK_RIGHT, &rect);
-            }
-        }
-        else
-        {
-            move_animation(wParam, &rect);
+            fireBullet(1, soldierPl);
+
         }
         break;
     }
@@ -274,6 +251,7 @@ void fireBullet(int number_of_bullets, Player shooter)
         Bullet bulletObj = Bullet(shooter, bulletSprite, shooter.getDirection());
         bullets.push_back(bulletObj);
     }
+
 }
 
 void PrintText(HDC hdc,std::string text, int x, int y)
@@ -291,6 +269,20 @@ void PrintText(HDC hdc,std::string text, int x, int y)
 
 void UpdateSprites(RECT * rect)
 {
+
+    if(PRESSED(VK_RIGHT) && !shoot)
+    {
+        move_animation(VK_RIGHT, rect);
+    }
+    if(PRESSED(VK_LEFT) && !shoot)
+    {
+        move_animation(VK_LEFT, rect);
+    }
+    if (PRESSED(VK_UP) && !shoot)
+    {
+        move_animation(VK_UP, rect);
+    }
+
     if(jump)
     {
 
@@ -299,37 +291,32 @@ void UpdateSprites(RECT * rect)
             move_animation(VK_RIGHT, rect);
         }
 
+
         if(jumpCounterX == 1 && jumpCounterY == 1)
         {
-            falling = true;
+            soldierPl.setFalling();
         }
-        if(!falling)
-        {
-            soldier.moveLeft(SOLDIER_SPEED);
-        }
-        else
-        {
-            soldier.moveRight(SOLDIER_SPEED);
-        }
+        soldierPl.playerJump();
     }
 
-    for(int i = 0; i < bullets.size(); ++i)
+   for(int i = 0; i < bullets.size(); ++i)
     {
         if(bullets[i].xPos < rect->right)
         {
             bullets[i].update();
         }
     }
+
     // Move map as soldier moves
-    if(soldier.getX() == MAP_SEGMENT_LENGTH)
+    if(soldierPl.getX() == MAP_SEGMENT_LENGTH)
     {
         backgroundSprite.setX(-MAP_SEGMENT_LENGTH * mapSegementCount);
-        soldier.setX(0);
+        soldierPl.setX(0);
         ++mapSegementCount;
     }
     // If there's a terrain change, update y position
-    if(terrainMappings.count(soldier.getX()) == 1 && !jump && soldier.getX() <= terrainMappings[soldier.getX()])
-        soldier.setY(terrainMappings[soldier.getX()]);
+    if(terrainMappings.count(soldierPl.getX()) == 1 && !jump && soldierPl.getX()<= terrainMappings[soldierPl.getX()])
+        soldierPl.setY(terrainMappings[soldierPl.getX()]);
 }
 
 void move_animation(int key, RECT* rect)
@@ -337,28 +324,28 @@ void move_animation(int key, RECT* rect)
     switch(key)
     {
     case VK_LEFT:
-        if(soldier.getX() > rect->left - soldier.getWidth() )
+        if(soldierPl.getX() > rect->left - soldierPl.getWidth() )
         {
             idle = false;
-            soldier.moveLeft(SOLDIER_SPEED);
+            soldierPl.moveLeft(SOLDIER_SPEED);
         }
         break;
     case VK_UP:
-        if(soldier.getY() > rect->top - soldier.getHeight() && !jump )
+        if(soldierPl.getY() > rect->top - soldierPl.getHeight() && !jump )
         {
             jump = true;
         }
         break;
     case VK_RIGHT:
-        if(soldier.getX() < rect->right + soldier.getWidth())
+        if(soldierPl.getX() < rect->right + soldierPl.getWidth())
         {
             idle = false;
             move_right = true;
-            soldier.moveRight(SOLDIER_SPEED);
+            soldierPl.moveRight(SOLDIER_SPEED);
         }
         break;
     case VK_DOWN:
-        if(soldier.getY() < rect->bottom + soldier.getHeight())
+        if(soldierPl.getY() < rect->bottom + soldierPl.getHeight())
         {
             idle = false;
             //soldier.y += SOLDIER_SPEED;
@@ -376,25 +363,25 @@ void DrawAnimation (HDC hdc, RECT * rect)
 
     backgroundSprite.draw(hdcBuffer);
 
-    scoreSprite.draw(hdcBuffer, 400, 22, 1, false);
-    livesSprite.draw(hdcBuffer, 10, 10, 1, false);
-    sniperOneSprite.draw(hdcBuffer, 430, 190, 3, false);
+    scoreSprite.draw(hdcBuffer, 400, 22, 1, 0, false);
+    livesSprite.draw(hdcBuffer, 10, 10, 1, 0, false);
+    sniperOneSprite.draw(hdcBuffer, 430, 190, 3, 0, false);
 
     if(idle && !jump && !shoot)
     {
-        soldierIdleSprite.draw(hdcBuffer, soldier.getX(), soldier.getY(), idleAnimationCounter, false);
+        soldierPl.getIdle().draw(hdcBuffer, soldierPl.getX(), soldierPl.getY(), idleAnimationCounter, 0, false);
     }
     else if (shoot && !jump)
     {
-        soldierShootSprite.draw(hdcBuffer, soldier.getX(), soldier.getY(), shootCounter, false);
+        soldierPl.getShoot().draw(hdcBuffer, soldierPl.getX(), soldierPl.getY(), shootCounter, 0, false);
     }
     else if(jump)
     {
-        soldierJumpSprite.draw(hdcBuffer, soldier.getX(), soldier.getY(), jumpCounterX, false);
+        soldierPl.getJump().draw(hdcBuffer, soldierPl.getX(), soldierPl.getY(), jumpCounterX, jumpCounterY, false);
     }
     else
     {
-        soldierMoveSprite.draw(hdcBuffer, soldier.getX(), soldier.getY(), animationCounter, false);
+        soldierPl.getMove().draw(hdcBuffer, soldierPl.getX(), soldierPl.getY(), animationCounter, 0, false);
     }
 
 
@@ -429,7 +416,7 @@ void DrawAnimation (HDC hdc, RECT * rect)
         if(jumpCounterX == 2 && jumpCounterY == 2)
         {
             jump = false;
-            falling = false;
+            soldierPl.resetFalling();
             jumpCounterX = 0;
             jumpCounterY = 0;
         }
@@ -443,11 +430,9 @@ void DrawAnimation (HDC hdc, RECT * rect)
         }
     }
 
-    for(auto bullet : bullets)
+     for(auto bullet : bullets)
     {
         bullet.render(hdcBuffer);
-        if(bullet.isHit(sniperOne))
-            std::cout<<"HIT"<<std::endl;
     }
 
     DeleteDC(hdcMem);
