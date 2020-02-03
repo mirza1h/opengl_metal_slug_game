@@ -53,10 +53,8 @@ class Player{
     void setY(int y) {yPos = y;}
     int getX() const { return xPos; }
     int getY() const { return yPos; }
-    void setY(int n) { yPos = n; }
-    void setX(int n) { xPos = n; }
-    int getWidth() const { return width; }
-    int getHeight() const { return height; }
+    int getWidth() const { return idle.getWidth(); }
+    int getHeight() const { return idle.getHeight(); }
 
     POINT getCurrentPosition() const;
 
