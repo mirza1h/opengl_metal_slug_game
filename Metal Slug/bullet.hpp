@@ -12,7 +12,7 @@
 
 using std::min;
 using std::max;
-
+const int BULLET_SPEED = 30;
 
 
 class Bullet {
@@ -40,17 +40,17 @@ class Bullet {
             yPos = ps.yPos;
         }
 
-        bool update(RECT* rect);
+        bool update();
         void render(HDC hdc);
         void checkInput();
         bool isHit(const Player& target);
 
-    private:
+    public:
         const Player source;
         Sprite projectile;
         int xPos;
         int yPos;
-        bool direction;
+        bool direction = true;
 };
 
 

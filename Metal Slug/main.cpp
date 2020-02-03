@@ -15,9 +15,9 @@
 #include <map>
 #include "sprite.hpp"
 #include "background.hpp"
-
+#include "bullet.hpp"
 const int SOLDIER_SPEED = 4;
-const int BULLET_SPEED = 30;
+
 const int WAIT_TIME = 120;
 const int SNIPER_FIRE_TIME = 1500;
 const int MAP_SEGMENT_LENGTH = 540;
@@ -26,36 +26,28 @@ int between_rand(int high, int low);
 void DrawAnimation (HDC hdc, RECT * rect);
 void UpdateSprites (RECT * rect);
 void move_animation(int key, RECT* rect);
-void Bullet (int number_of_bullets = 1);
+void fireBullet(int number_of_bullets, Player);
 void Render(HWND);
 void PrintText(HDC, std::string, int, int);
 BOOL Initialize(HWND);
-typedef struct ObjectInfo
-{
-    int x;
-    int y;
-    int width;
-    int height;
-    int dx;
-    int dy;
-} Object;
-Object bullet;
-std::vector<Object *> bullet_sprites;
+std::vector<Bullet> bullets;
 std::map<int,int> terrainMappings;
 
+RECT temp;
 Sprite bulletSprite = Sprite("assets/cartouche_droite_bullet_black.bmp","assets/cartouche_droite_bullet_white.bmp", 0, 0, 1, 1);
 Sprite scoreSprite = Sprite("assets/score_black.bmp","assets/score_white.bmp", 0, 0, 1, 1);
 Sprite livesSprite = Sprite("assets/lives_black.bmp","assets/lives_white.bmp", 0, 0, 1, 1);
 Sprite sniperOneSprite = Sprite("assets/sniper_gauche/sniper_gauche_idle_black.bmp","assets/sniper_gauche/sniper_gauche_idle_white.bmp", 0, 0, 3, 1);
-RECT temp;
-Player sniperOne = Player(430, 190, 0, 0, temp, true, 3);
+
 Sprite soldierMoveSprite = Sprite("assets/player/move_right_black.bmp", "assets/player/move_right_white.bmp", 0, 0, 6, 1);
 Sprite soldierIdleSprite = Sprite("assets/player/idle_right_black.bmp", "assets/player/idle_right_white.bmp", 0, 0, 4, 1);
 Sprite soldierJumpSprite = Sprite("assets/player/jump_right_black.bmp", "assets/player/jump_right_white.bmp", 0, 0, 4, 3);
 Sprite soldierShootSprite = Sprite("assets/player/shoot_black.bmp", "assets/player/shoot_white.bmp", 0, 0, 4, 1);
-Player soldierPl = Player(0, 200, soldierIdleSprite.getWidth(), soldierIdleSprite.getHeight(), temp, true, 1);
 
 Background backgroundSprite = Background("assets/stage1.bmp",0,0);
+
+Player sniperOne = Player(430, 190, 0, 0, temp, false, 3);
+Player soldierPl = Player(0, 200, soldierIdleSprite.getWidth(), soldierIdleSprite.getHeight(), temp, true, 1);
 
 int animationCounter = 0;
 int idleAnimationCounter = 0;
@@ -212,7 +204,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         if(wParam == VK_SPACE)
         {
             shoot = true;
-            Bullet();
+            fireBullet(1, soldierPl);
 
         }
         break;
@@ -252,18 +244,14 @@ void Render(HWND hwnd)
     ReleaseDC(hwnd,hdc);
 }
 
-void Bullet(int number_of_bullets)
+void fireBullet(int number_of_bullets, Player shooter)
 {
-    for(int i = 0; i < number_of_bullets; ++i)
+    for(int i = 0; i < number_of_bullets; ++i) 
     {
-        Object* bullet_sprite = new Object();
-        bullet_sprite->height = bullet.height;
-        bullet_sprite->width = bullet.width;
-        bullet_sprite->x = soldierPl.getX() + soldierPl.getWidth() - 10;
-        bullet_sprite->y = soldierPl.getY() + soldierPl.getHeight()/4 + 15*i;
-        bullet_sprite->dx = BULLET_SPEED;
-        bullet_sprites.push_back(bullet_sprite);
+        Bullet bulletObj = Bullet(shooter, bulletSprite, shooter.getDirection());
+        bullets.push_back(bulletObj);
     }
+    
 }
 
 void PrintText(HDC hdc,std::string text, int x, int y)
@@ -311,13 +299,14 @@ void UpdateSprites(RECT * rect)
         soldierPl.playerJump();
     }
 
-    for(auto bullet : bullet_sprites)
+   for(int i = 0; i < bullets.size(); ++i)
     {
-        if(bullet->x < rect->right + bullet->width)
+        if(bullets[i].xPos < rect->right)
         {
-            bullet->x += BULLET_SPEED;
+            bullets[i].update();
         }
     }
+
     // Move map as soldier moves
     if(soldierPl.getX() == MAP_SEGMENT_LENGTH)
     {
@@ -441,9 +430,9 @@ void DrawAnimation (HDC hdc, RECT * rect)
         }
     }
 
-    for(auto bullet : bullet_sprites)
+     for(auto bullet : bullets)
     {
-        bulletSprite.draw(hdcBuffer, bullet->x, bullet->y, 1, 0, false);
+        bullet.render(hdcBuffer);
     }
 
     DeleteDC(hdcMem);
