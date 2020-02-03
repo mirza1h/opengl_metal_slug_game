@@ -16,12 +16,10 @@ Player::Player(int x, int y, int w, int h, RECT moveRect, bool dir, int numLives
 
 void Player::moveLeft(std::size_t n){
   xPos -= n;
-  direction = false;
 }
 
 void Player::moveRight(std::size_t n){
   xPos += n;
-  direction = true;
 }
 
 void Player::moveUp(std::size_t n){

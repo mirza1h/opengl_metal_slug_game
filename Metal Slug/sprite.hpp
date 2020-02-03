@@ -80,6 +80,7 @@ class Player{
     void resetFalling() { falling = false; }
     bool getFalling() const { return falling; }
     void setDead() { dead = true; }
+    bool getDead() { return dead;}
     void flipDirection() { direction = !direction; }
 
   private:

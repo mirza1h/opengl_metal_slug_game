@@ -50,7 +50,7 @@ class Bullet {
         Sprite projectile;
         int xPos;
         int yPos;
-        bool direction = true;
+        bool direction;
 };
 
 

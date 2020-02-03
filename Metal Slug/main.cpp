@@ -15,7 +15,7 @@
 #include <map>
 #include <memory>
 #include <list>
-
+#include <mmsystem.h>
 #include "sprite.hpp"
 #include "background.hpp"
 #include "bullet.hpp"
@@ -25,14 +25,16 @@ const int WAIT_TIME = 120;
 const int SNIPER_FIRE_TIME = 1500;
 const int MAP_SEGMENT_LENGTH = 540;
 const int pauseTime = 20;
-int between_rand(int high, int low);
+
 void DrawAnimation (HDC hdc, RECT * rect);
 void UpdateSprites (RECT * rect);
 void move_animation(int key, RECT* rect);
-void fireBullet(int number_of_bullets, Player);
+void FireBullet(int number_of_bullets, Player);
 void Render(HWND);
 void PrintText(HDC, std::string, int, int);
+void PlaySound(char* filename);
 BOOL Initialize(HWND);
+
 std::list<Bullet*> bullets;
 std::list<Player*> enemies;
 std::vector<int> enemyIdle;
@@ -182,6 +184,7 @@ BOOL Initialize(HWND hwnd)
 //    terrainMappings[82] = 200;
 //    terrainMappings[160] = 220;
 //    terrainMappings[170] = 230;
+    PlaySound("sounds/theme.wav");
     return true;
 }
 /*  This function is called by the Windows function DispatchMessage()  */
@@ -203,7 +206,8 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         switch (wParam)
         {
         case SNIPER_TIMER:
-           // fireBullet(1, sniperOne);
+            if(!sniperOne.getDead())
+                FireBullet(1, sniperOne);
             return 0;
         }
     case WM_SIZE:
@@ -217,7 +221,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         if(wParam == VK_SPACE)
         {
             shoot = true;
-            fireBullet(1, soldier);
+            FireBullet(1, soldier);
         }
         break;
     }
@@ -256,15 +260,26 @@ void Render(HWND hwnd)
     ReleaseDC(hwnd,hdc);
 }
 
-void fireBullet(int number_of_bullets, Player shooter)
+void FireBullet(int number_of_bullets, Player shooter)
 {
+    PlaySound("sounds/gun.wav");
     for(int i = 0; i < number_of_bullets; ++i)
     {
 
         Bullet* bulletObj = new Bullet(shooter, bulletSprite, shooter.getDirection());
         bullets.push_back(bulletObj);
     }
+}
 
+void PlaySound(char* filename){
+    static long id = 1;
+    char cmd[300];
+    char name[20];
+    sprintf(name, "mydev%d", ++id);
+    sprintf(cmd, "open %s type waveaudio alias %s",filename, name);
+    mciSendString(cmd, NULL, NULL, NULL);
+    sprintf(cmd, "play %s notify", name);
+    mciSendString(cmd, NULL, NULL, NULL);
 }
 
 void PrintText(HDC hdc,std::string text, int x, int y)
