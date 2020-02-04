@@ -6,6 +6,7 @@
 
 #define SNIPER_TIMER 1
 #define ARABIAN_TIMER 2
+
 #define PRESSED(vk_code) ((GetAsyncKeyState(vk_code) & 0x8000) ? 1 : 0)
 #include <tchar.h>
 #include <windows.h>
@@ -70,14 +71,14 @@ Sprite bossDeathSprite = Sprite("assets/boss/boss_death_black.bmp", "assets/boss
 
 Sprite arabianOneIdleSprite = Sprite("assets/arabian/ennemie_arabian_gauche_idle_black.bmp","assets/arabian/ennemie_arabian_gauche_idle_white.bmp", 0, 0, 6, 1);
 Sprite arabianOneMoveSprite = Sprite("assets/arabian/ennemie_arabian_gauche_running_black.bmp","assets/arabian/ennemie_arabian_gauche_running_white.bmp", 0, 0, 12, 1);
-Sprite arabianOneShootSprite = Sprite("assets/arabian/ennemie_arabian_gauche_attack_black.bmp","assets/arabian/ennemie_arabian_gauche_attack_white.bmp", 0, 0, 4, 1);
-Sprite arabianOneDeathSprite = Sprite("assets/arabian/ennemie_arabian_gauche_death_black.bmp","assets/arabian/ennemie_arabian_gauche_death_white.bmp", 0, 0, 20, 1);
+Sprite arabianOneShootSprite = Sprite("assets/arabian/ennemie_arabian_gauche_attack_black.bmp","assets/arabian/ennemie_arabian_gauche_attack_white.bmp", 0, 0, 2, 1);
+Sprite arabianOneDeathSprite = Sprite("assets/arabian/ennemie_arabian_gauche_death_black.bmp","assets/arabian/ennemie_arabian_gauche_death_white.bmp", 0, 0, 5, 1);
 
 Sprite soldierMoveSprite = Sprite("assets/player/move_right_black.bmp", "assets/player/move_right_white.bmp", 0, 0, 6, 1);
 Sprite soldierIdleSprite = Sprite("assets/player/idle_right_black.bmp", "assets/player/idle_right_white.bmp", 0, 0, 4, 1);
 Sprite soldierJumpSprite = Sprite("assets/player/jump_right_black.bmp", "assets/player/jump_right_white.bmp", 0, 0, 4, 3);
 Sprite soldierShootSprite = Sprite("assets/player/shoot_black.bmp", "assets/player/shoot_white.bmp", 0, 0, 4, 1);
-Sprite soldierDeathSprite = Sprite("assets/player/death_black.bmp", "assets/player/death_white.bmp", 0, 0, 10, 1);
+Sprite soldierDeathSprite = Sprite("assets/player/death_black.bmp", "assets/player/death_white.bmp", 0, 0, 4, 1);
 
 Background backgroundSprite = Background("assets/stage1.bmp",0,0);
 
@@ -194,6 +195,7 @@ BOOL Initialize(HWND hwnd)
 {
     SetTimer(hwnd, SNIPER_TIMER, SNIPER_FIRE_TIME, NULL);
     SetTimer(hwnd, ARABIAN_TIMER, ARABIAN_RUNNING_TIME, NULL);
+
     setupTerrain();
     setupSniper(sniperOne);
     setupSniper(sniperTwo);
@@ -354,24 +356,23 @@ void ArabianAttacks()
 {
     if(mapSegementCount == 1)
     {
-        if(arabianOne.getPlayerState() != Dead)
+        if(arabianOne.getPlayerState() != Dead && arabianOne.getPlayerState() != Shooting)
             arabianOne.setPlayerState(Moving);
     }
     if(mapSegementCount == 2)
     {
-        if(arabianOne.getPlayerState() != Dead)
-        {
+        if(arabianTwo.getPlayerState() != Dead && arabianTwo.getPlayerState() != Shooting){
             arabianTwo.setPlayerState(Moving);
         }
         else
         {
-            if(arabianThree.getPlayerState() != Dead && soldier.getX() >= 250)
+            if(arabianThree.getPlayerState() != Dead && arabianThree.getPlayerState() != Shooting && soldier.getX() >= 250)
                 arabianThree.setPlayerState(Moving);
         }
     }
     if(mapSegementCount == 3)
     {
-        if(arabianFour.getPlayerState() != Dead)
+        if(arabianFour.getPlayerState() != Dead && arabianThree.getPlayerState() != Shooting)
             arabianFour.setPlayerState(Moving);
     }
 }
@@ -427,6 +428,10 @@ void PrintText(HDC hdc,int number, int x, int y)
 
 void UpdateSprites(RECT * rect)
 {
+    if(soldier.getY() >= 280)
+    {
+        soldier.setPlayerState(Dead);
+    }
 
     if(PRESSED(VK_RIGHT) && (soldier.getPlayerState() != Shooting) && (soldier.getPlayerState() != Dead))
     {
@@ -444,7 +449,7 @@ void UpdateSprites(RECT * rect)
     if(soldier.getJumping())
     {
 
-        if(PRESSED(VK_RIGHT))
+        if(PRESSED(VK_RIGHT) && (soldier.getPlayerState() != Dead))
         {
             move_animation(VK_RIGHT, rect);
         }
@@ -481,22 +486,17 @@ void UpdateSprites(RECT * rect)
 //        std::cout <<  "X: " << soldier.getX() <<  " Y: " <<  currentTerrainMappings[soldier.getX()] << std::endl;
     }
 
-//    if(arabianOne.getPlayerState() == Moving )
-//    {
-//        arabianOne.moveLeft(5);
-//    }
-//    if(arabianTwo.getPlayerState() == Moving )
-//    {
-//        arabianTwo.moveLeft(5);
-//    }
-//    if(arabianThree.getPlayerState() == Moving )
-//    {
-//        arabianThree.moveLeft(5);
-//    }
-//    if(arabianFour.getPlayerState() == Moving )
-//    {
-//        arabianFour.moveLeft(5);
-//    }
+    for(auto it = currentEnemies.begin(); it != currentEnemies.end(); ++it)
+    {
+        if((*it)->getPlayerState() == Moving )
+        {
+            (*it)->moveLeft(5);
+            if(currentTerrainMappings.count((*it)->getX()) == 1)
+            {
+                (*it)->setY(currentTerrainMappings[(*it)->getX()]);
+            }
+        }
+    }
 //    if(arabianOne.isHit(soldier))
 //    {
 //        reachedTarget = true;
@@ -505,9 +505,7 @@ void UpdateSprites(RECT * rect)
 
     for(auto it = currentEnemies.begin(); it != currentEnemies.end(); ++it)
     {
-        if((*it)->getPlayerState() == Moving && (*it)->getPlayerType() == Arabian)
-            (*it)->moveLeft(5);
-        if((*it)->getShoot().getColumnCount() != 0 && soldier.getPlayerState() != Dead && (*it)->isHit(soldier))
+        if((*it)->getShoot().getColumnCount() != 0 && (*it)->getPlayerState() != Dead  && soldier.getPlayerState() != Dead && (*it)->isHit(soldier))
         {
             (*it)->setPlayerState(Shooting);
             soldier.decreaseNumLives();
@@ -644,11 +642,11 @@ void DrawAnimation (HDC hdc, RECT * rect)
     else if(soldier.getPlayerState() == Dead)
     {
         deathCounter++;
-        if(deathCounter == 10)
+        if(deathCounter == 4)
         {
             soldier.setLives();
             soldier.setX(0);
-            soldier.setY(200);
+            soldier.setY(currentTerrainMappings[0]);
             soldier.setPlayerState(Idle);
             deathCounter = 0;
         }
@@ -703,18 +701,11 @@ void DrawAnimation (HDC hdc, RECT * rect)
 
                 if((*it)->getLives() == 0)
                 {
+                    PlaySound("sounds/die.wav");
                     (*it)->setPlayerState(Dead);
                 }
             }
         }
-//        if((*bullet)->isHit(soldier))
-//        {
-//            soldier.decreaseNumLives();
-//            if(soldier.getLives() == 0)
-//            {
-//                soldier.setPlayerState(Dead);
-//            }
-//        }
 
     }
 
@@ -837,11 +828,38 @@ void terrainThree()
 
 }
 
+void terrainFour()
+{
+    for(int i = 0; i < terrainMappings[3].size() ; ++i)
+    {
+        if((i >= 116 && i <= 130 )
+           ||(i >= 212 && i <= 228)
+           || (i >= 376 && i <= 396)
+           || (i >= 476 && i <= 496) )
+        {
+            terrainMappings[4][i]=290;
+
+        }
+        else
+            terrainMappings[4][i] = terrainMappings[3][540];
+    }
+}
+
+void terrainFive()
+{
+     for(int i = 0; i < terrainMappings[3].size() ; ++i)
+    {
+        terrainMappings[5][i] = terrainMappings[3][540];
+    }
+}
+
 void setupTerrain()
 {
     terrainOne();
     terrainTwo();
     terrainThree();
+    terrainFour();
+    terrainFive();
     currentTerrainMappings = terrainMappings[1];
 }
 
