@@ -135,9 +135,8 @@ POINT Player::getCurrentPosition() const
 
 bool Player::isHit(const Player& target)
 {
-
         return (xPos >= target.getX() && xPos <= target.getX() + target.getWidth())
-             && (yPos >= target.getY() && yPos <= target.getY() + target.getHeight())
+             && (yPos >= target.getY() || yPos <= target.getY() + target.getHeight())
              && target.getHumanPlayer();
 
 }
