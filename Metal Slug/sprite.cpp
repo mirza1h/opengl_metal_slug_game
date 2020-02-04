@@ -1,54 +1,6 @@
 #include "sprite.hpp"
+#include "player.hpp"
 #include <iostream>
-
-
-Player::Player(int x, int y, int w, int h, RECT moveRect, bool dir, int _numLives)
-{
-    xPos=  x;
-    yPos= y;
-    width= w;
-    height= h;
-    moveRectangle= moveRect;
-    direction = dir;
-    numLives = _numLives;
-}
-
-
-void Player::moveLeft(std::size_t n)
-{
-    xPos -= n;
-}
-
-void Player::moveRight(std::size_t n)
-{
-    xPos += n;
-}
-
-void Player::moveUp(std::size_t n)
-{
-    yPos -= n;
-}
-
-
-
-void Player::moveDown(std::size_t n)
-{
-    yPos += n;
-}
-
-
-void Player::playerJump()
-{
-    if(falling)
-    {
-        moveDown(25);
-    }
-    else
-    {
-        moveUp(25);
-    }
-}
-
 
 void Sprite::draw(HDC bufferHDC, int xPos, int yPos, std::size_t spriteCountX, std::size_t spriteCountY = 0, bool inverted = false)
 {
@@ -110,33 +62,4 @@ Sprite::Sprite(const Sprite& s)
     columns = s.columns;
     rows = s.rows;
     imgInfo = s.imgInfo;
-}
-
-void Player::moveToPoint(POINT pt)
-{
-    if(pt.x > xPos)
-        direction = true;
-    else if(pt.x < xPos)
-        direction = false;
-
-    xPos = pt.x;
-    yPos = pt.y;
-}
-
-POINT Player::getCurrentPosition() const
-{
-    POINT pt;
-    pt.x = xPos;
-    pt.y = yPos;
-    return pt;
-}
-
-
-bool Player::isHit(const Player& target)
-{
-
-        return (xPos >= target.getX() && xPos <= target.getX() + target.getWidth())
-             && (yPos >= target.getY() && yPos <= target.getY() + target.getHeight())
-             && target.getHumanPlayer();
-
 }

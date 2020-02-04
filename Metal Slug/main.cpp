@@ -20,6 +20,7 @@
 #include "sprite.hpp"
 #include "background.hpp"
 #include "bullet.hpp"
+#include "player.hpp"
 
 void setupSniper(Player & sniper);
 void setupArabian(Player& arabian);
@@ -58,6 +59,7 @@ RECT temp;
 Sprite bulletSprite = Sprite("assets/cartouche_droite_bullet_black.bmp","assets/cartouche_droite_bullet_white.bmp", 0, 0, 1, 1);
 Sprite scoreSprite = Sprite("assets/score_black.bmp","assets/score_white.bmp", 0, 0, 1, 1);
 Sprite livesSprite = Sprite("assets/lives_black.bmp","assets/lives_white.bmp", 0, 0, 1, 1);
+Sprite bossBulletSprite = Sprite("assets/cartouche_boss2_bullet_black.bmp", "assets/cartouche_boss2_bullet_white.bmp", 0, 0, 1, 1);
 
 Sprite sniperOneSprite = Sprite("assets/sniper_gauche/sniper_idle_black.bmp","assets/sniper_gauche/sniper_idle_white.bmp", 0, 0, 1, 1);
 Sprite sniperDeath = Sprite("assets/sniper_gauche/sniper_death_black.bmp","assets/sniper_gauche/sniper_death_white.bmp", 0, 0, 5, 1);
@@ -79,20 +81,20 @@ Sprite soldierDeathSprite = Sprite("assets/player/death_black.bmp", "assets/play
 
 Background backgroundSprite = Background("assets/stage1.bmp",0,0);
 
-Player sniperOne = Player(290, 200, 0, 0, temp, false, 3);
-Player sniperTwo = Player(430, 190, 0, 0, temp, false, 3);
-Player sniperThree = Player(460, 175, 0, 0, temp, false, 3);
-Player sniperFour = Player(300, 190, 0, 0, temp, false, 3);
-Player sniperFive = Player(430, 240, 0, 0, temp, false, 3);
+Player sniperOne = Player(290, 200, 0, 0, temp, false, 3, Sniper);
+Player sniperTwo = Player(430, 190, 0, 0, temp, false, 3, Sniper);
+Player sniperThree = Player(460, 175, 0, 0, temp, false, 3, Sniper);
+Player sniperFour = Player(300, 190, 0, 0, temp, false, 3, Sniper);
+Player sniperFive = Player(430, 240, 0, 0, temp, false, 3, Sniper);
 
-Player boss = Player(400, 205, 0, 0, temp, false, 10);
+Player boss = Player(400, 205, 0, 0, temp, false, 10, Boss);
 
-Player soldier = Player(0, 200, 0, 0, temp, true, 2);
+Player soldier = Player(0, 200, 0, 0, temp, true, 3, Soldier);
 
-Player arabianOne = Player(100, 200, 0, 0, temp, false, 1);
-Player arabianTwo = Player(110, 165, 0, 0, temp, false, 1);
-Player arabianThree = Player(360, 200, 0, 0, temp, false, 1);
-Player arabianFour = Player(220, 175, 0, 0, temp, false, 1);
+Player arabianOne = Player(100, 200, 0, 0, temp, false, 1, Arabian);
+Player arabianTwo = Player(110, 165, 0, 0, temp, false, 1, Arabian);
+Player arabianThree = Player(360, 200, 0, 0, temp, false, 1, Arabian);
+Player arabianFour = Player(220, 175, 0, 0, temp, false, 1, Arabian);
 
 int animationCounter = 0;
 int idleAnimationCounter = 0;
@@ -340,8 +342,9 @@ void SniperFire()
     }
     if(mapSegementCount == 5)
     {
-        if(boss.getPlayerState() != Dead){
-            FireBullet(3, boss);
+        if(boss.getPlayerState() != Dead)
+        {
+            FireBullet(1, boss);
             boss.setPlayerState(Shooting);
         }
     }
@@ -356,7 +359,8 @@ void ArabianAttacks()
     }
     if(mapSegementCount == 2)
     {
-        if(arabianOne.getPlayerState() != Dead){
+        if(arabianOne.getPlayerState() != Dead)
+        {
             arabianTwo.setPlayerState(Moving);
         }
         else
@@ -383,10 +387,13 @@ void Render(HWND hwnd)
 
 void FireBullet(int number_of_bullets, Player shooter)
 {
+    Sprite temp = bulletSprite;
+    if (shooter.getPlayerType() == Boss)
+        temp = bossBulletSprite;
     for(int i = 0; i < number_of_bullets; ++i)
     {
         PlaySound("sounds/gun.wav");
-        Bullet* bulletObj = new Bullet(shooter, bulletSprite, shooter.getDirection());
+        Bullet* bulletObj = new Bullet(shooter, temp, shooter.getDirection());
         bullets.push_back(bulletObj);
     }
 }
@@ -474,22 +481,22 @@ void UpdateSprites(RECT * rect)
 //        std::cout <<  "X: " << soldier.getX() <<  " Y: " <<  currentTerrainMappings[soldier.getX()] << std::endl;
     }
 
-    if(arabianOne.getPlayerState() == Moving )
-    {
-        arabianOne.moveLeft(5);
-    }
-    if(arabianTwo.getPlayerState() == Moving )
-    {
-        arabianTwo.moveLeft(5);
-    }
-    if(arabianThree.getPlayerState() == Moving )
-    {
-        arabianThree.moveLeft(5);
-    }
-    if(arabianFour.getPlayerState() == Moving )
-    {
-        arabianFour.moveLeft(5);
-    }
+//    if(arabianOne.getPlayerState() == Moving )
+//    {
+//        arabianOne.moveLeft(5);
+//    }
+//    if(arabianTwo.getPlayerState() == Moving )
+//    {
+//        arabianTwo.moveLeft(5);
+//    }
+//    if(arabianThree.getPlayerState() == Moving )
+//    {
+//        arabianThree.moveLeft(5);
+//    }
+//    if(arabianFour.getPlayerState() == Moving )
+//    {
+//        arabianFour.moveLeft(5);
+//    }
 //    if(arabianOne.isHit(soldier))
 //    {
 //        reachedTarget = true;
@@ -498,6 +505,8 @@ void UpdateSprites(RECT * rect)
 
     for(auto it = currentEnemies.begin(); it != currentEnemies.end(); ++it)
     {
+        if((*it)->getPlayerState() == Moving && (*it)->getPlayerType() == Arabian)
+            (*it)->moveLeft(5);
         if((*it)->getShoot().getColumnCount() != 0 && soldier.getPlayerState() != Dead && (*it)->isHit(soldier))
         {
             (*it)->setPlayerState(Shooting);

@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1580853768 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\main.cpp
+1580858917 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\main.cpp
 	<tchar.h>
 	<windows.h>
 	<stdio.h>
@@ -13,16 +13,18 @@
 	"sprite.hpp"
 	"background.hpp"
 	"bullet.hpp"
+	"player.hpp"
 
-1580853858 c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\sprite.hpp
+1580854219 c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\sprite.hpp
 	<string>
 	<stdexcept>
 	<vector>
 	<iostream>
 	<windows.h>
 
-1580841661 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\sprite.cpp
+1580854336 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\sprite.cpp
 	"sprite.hpp"
+	"player.hpp"
 	<iostream>
 
 1580683840 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\background.cpp
@@ -35,10 +37,10 @@
 	<iostream>
 	<map>
 
-1580836837 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\bullet.cpp
+1580857110 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\bullet.cpp
 	"bullet.hpp"
 
-1580836837 c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\bullet.hpp
+1580859020 c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\bullet.hpp
 	<windows.h>
 	<iostream>
 	<algorithm>
@@ -46,5 +48,19 @@
 	<cmath>
 	"sprite.hpp"
 	"background.hpp"
+	"player.hpp"
 	<wingdi.h>
+
+1580855471 c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\player.hpp
+	<string>
+	<stdexcept>
+	<vector>
+	<iostream>
+	<windows.h>
+	"sprite.hpp"
+
+1580855454 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\player.cpp
+	"player.hpp"
+	<iostream>
+	<iostream>
 

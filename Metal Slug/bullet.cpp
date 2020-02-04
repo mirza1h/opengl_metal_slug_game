@@ -1,7 +1,6 @@
 #include "bullet.hpp"
 
 
-
 bool Bullet::update()
 {
     if(direction == true) {

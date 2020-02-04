@@ -8,6 +8,7 @@
 #include <cmath>
 #include "sprite.hpp"
 #include "background.hpp"
+#include "player.hpp"
 #include <wingdi.h>
 
 using std::min;
@@ -22,15 +23,25 @@ public:
     {
         projectile = s;
         direction = d;
+        int xOffset = p.getWidth() - 10;
+        int yOffset = p.getHeight()/4 ;
+        if(p.getPlayerType() == Sniper){
+            xOffset = 10;
+            yOffset = 4;
+        }
+        if(p.getPlayerType() == Boss){
+            xOffset = 15;
+            yOffset = 25;
+        }
         if(!d)
         {
-            this->xPos = p.getX() - s.getWidth() - 10;
-            this->yPos = p.getY() + s.getHeight()/4 ;
+            this->xPos = p.getX() + xOffset;
+            this->yPos = p.getY() + yOffset;
         }
         else
         {
-            this->xPos= p.getX() + p.getShoot().getWidth() - 10;
-            this->yPos = p.getY() + p.getShoot().getHeight()/4 ;
+            this->xPos= p.getX() + xOffset;
+            this->yPos = p.getY() + yOffset;
         }
 
     }

@@ -42,6 +42,8 @@
 		<Unit filename="bullet.cpp" />
 		<Unit filename="bullet.hpp" />
 		<Unit filename="main.cpp" />
+		<Unit filename="player.cpp" />
+		<Unit filename="player.hpp" />
 		<Unit filename="sprite.cpp" />
 		<Unit filename="sprite.hpp" />
 		<Extensions>
