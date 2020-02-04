@@ -2,43 +2,6 @@
 
 
 
-// void ProjectileType::draw(HDC bufferHDC, int xPos, int yPos) const
-// {
-//   HDC tmpHDC = CreateCompatibleDC(bufferHDC);
-//   HBITMAP oldBITMAP = (HBITMAP)SelectObject(tmpHDC, rotatedBitmask);
-//   BitBlt(bufferHDC, xPos, yPos, imgInfo.bmWidth, imgInfo.bmHeight, tmpHDC, 0, 0, SRCAND);
-
-//   SelectObject(tmpHDC, rotatedImg);
-//   BitBlt(bufferHDC, xPos, yPos, imgInfo.bmWidth, imgInfo.bmHeight, tmpHDC, 0, 0, SRCPAINT);
-
-//   SelectObject(tmpHDC, oldBITMAP);
-//   DeleteObject(rotatedBitmask);
-//   DeleteObject(rotatedImg);
-//   DeleteDC(tmpHDC);
-// }
-
-
-
-// ProjectileType::ProjectileType(const std::string& imgFilename,
-//                        const std::string& imgBitmaskFilename,
-//                        int width, int height):
-//   imgBitmask{ (HBITMAP)LoadImage(NULL, imgBitmaskFilename.c_str(), IMAGE_BITMAP, width, height, LR_LOADFROMFILE) }
-// {
-//     img = (HBITMAP)LoadImage(NULL, imgFilename.c_str(), IMAGE_BITMAP, width, height, LR_LOADFROMFILE);
-//       if(img == NULL)
-//         throw std::invalid_argument("ProjectileType(): image " + imgFilename + " not found");
-
-//       if(imgBitmask == NULL)
-//          throw std::invalid_argument("ProjectileType(): image " + imgBitmaskFilename + " not found");
-
-//       BITMAP imgBitmaskInfo;
-//       GetObject(imgBitmask, sizeof(imgBitmaskInfo), &imgBitmaskInfo);
-//       GetObject(img, sizeof(imgInfo), &imgInfo);
-
-//       if(imgBitmaskInfo.bmWidth != imgInfo.bmWidth || imgBitmaskInfo.bmHeight != imgInfo.bmHeight)
-//         throw std::invalid_argument("ProjectileType(): incompatibile dimensions of img and bitmaskImg");
-// }
-
 bool Bullet::update()
 {
     if(direction == true) {
@@ -57,10 +20,6 @@ void Bullet::render(HDC hdc)
 {
   projectile.draw(hdc, xPos, yPos, 0, 0, false);
 }
-
-
-void Bullet::checkInput() {}
-
 
 
 bool Bullet::isHit(const Player& target)

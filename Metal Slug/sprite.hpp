@@ -36,8 +36,7 @@ class Sprite{
     int rows = 0;
 };
 
-
-
+enum state {Idle, Moving, Shooting, Dead};
 
 class Player{
   public:
@@ -55,15 +54,14 @@ class Player{
     int getY() const { return yPos; }
     int getWidth() const { return idle.getWidth(); }
     int getHeight() const { return idle.getHeight(); }
-
+    bool isHit(const Player& target);
     POINT getCurrentPosition() const;
     bool getDirection() const { return direction; }
 
-    void setFalling() { falling = true;}
     Sprite& getIdle() { return idle; }
     void setIdle(Sprite& idleSprite) { idle = idleSprite;}
-    Sprite& getMove() { return move; }
-    void setMove(Sprite& moveSprite) { move = moveSprite;}
+    Sprite& getMoving() { return moving; }
+    void setMoving(Sprite& moveSprite) { moving = moveSprite;}
     void setInverseMove(Sprite& inverseMoveSprite) { inverse_move = inverseMoveSprite;}
     Sprite& getInverseMove() { return inverse_move; }
     void setDeath(Sprite& deathSprite) { death = deathSprite; }
@@ -73,25 +71,30 @@ class Player{
     void setShoot(Sprite& shootSprite) { shoot = shootSprite;}
     Sprite& getShoot() { return shoot; }
     void decreaseNumLives()  {  --numLives;}
-    void setPlayerFalling() { falling = true; }
     void setHumanPlayer() { humanPlayer = true; }
     bool getHumanPlayer() const { return humanPlayer; }
     int getLives() const { return numLives; }
+    void setLives() { numLives = 15; }
+    void flipDirection() { direction = !direction; }
+    void setFalling() { falling = true;}
     void resetFalling() { falling = false; }
     bool getFalling() const { return falling; }
-    void setDead() { dead = true; }
-    bool getDead() { return dead;}
-    void flipDirection() { direction = !direction; }
+    void setJumping() { jumping = true;}
+    void resetJumping() { jumping = false; }
+    bool getJumping() const { return jumping; }
+
+    enum state getPlayerState() { return playerState;}
+    void setPlayerState(enum state newState) {playerState = newState;}
 
   private:
     int xPos;
     int yPos;
     int width;
     int height;
-    int numLives = 3;
+    int numLives;
     RECT moveRectangle;
     Sprite idle;
-    Sprite move;
+    Sprite moving;
     Sprite inverse_move;
     Sprite death;
     Sprite shoot;
@@ -99,7 +102,8 @@ class Player{
     bool direction = true;
     bool humanPlayer = false;
     bool falling = false;
-    bool dead = false;
+    bool jumping = false;
+    enum state playerState = Idle;
 };
 
 
