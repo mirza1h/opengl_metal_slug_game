@@ -74,7 +74,7 @@ class Player{
     void setHumanPlayer() { humanPlayer = true; }
     bool getHumanPlayer() const { return humanPlayer; }
     int getLives() const { return numLives; }
-    void setLives() { numLives = 15; }
+    void setLives() { numLives = 2; }
     void flipDirection() { direction = !direction; }
     void setFalling() { falling = true;}
     void resetFalling() { falling = false; }

@@ -11,7 +11,6 @@ Player::Player(int x, int y, int w, int h, RECT moveRect, bool dir, int _numLive
     moveRectangle= moveRect;
     direction = dir;
     numLives = _numLives;
-    std::cout << "numLives:" << numLives << std::endl;
 }
 
 
