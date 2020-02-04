@@ -35,17 +35,20 @@ void PrintText(HDC, std::string, int, int);
 void PlaySound(char* filename);
 BOOL Initialize(HWND);
 
+std::map<int,std::list<Player*>> enemies;
 std::list<Bullet*> bullets;
-std::list<Player*> enemies;
-std::vector<int> enemyIdle;
-std::map<int,int> terrainMappings;
+std::list<Player*> currentEnemies;
+std::vector<int> enemyIdle(3);
+std::vector<int> enemyDeathCounter(3);
+std::map<int,std::map<int, int>> terrainMappings;
+std::map<int, int> currentTerrainMappings;
 
 RECT temp;
 Sprite bulletSprite = Sprite("assets/cartouche_droite_bullet_black.bmp","assets/cartouche_droite_bullet_white.bmp", 0, 0, 1, 1);
 Sprite scoreSprite = Sprite("assets/score_black.bmp","assets/score_white.bmp", 0, 0, 1, 1);
 Sprite livesSprite = Sprite("assets/lives_black.bmp","assets/lives_white.bmp", 0, 0, 1, 1);
 Sprite sniperOneSprite = Sprite("assets/sniper_gauche/sniper_gauche_idle_black.bmp","assets/sniper_gauche/sniper_gauche_idle_white.bmp", 0, 0, 3, 1);
-
+Sprite sniperDeath = Sprite("assets/sniper_gauche/sniper_death_black.bmp","assets/sniper_gauche/sniper_death_white.bmp", 0, 0, 5, 1);
 Sprite soldierMoveSprite = Sprite("assets/player/move_right_black.bmp", "assets/player/move_right_white.bmp", 0, 0, 6, 1);
 Sprite soldierIdleSprite = Sprite("assets/player/idle_right_black.bmp", "assets/player/idle_right_white.bmp", 0, 0, 4, 1);
 Sprite soldierJumpSprite = Sprite("assets/player/jump_right_black.bmp", "assets/player/jump_right_white.bmp", 0, 0, 4, 3);
@@ -53,9 +56,22 @@ Sprite soldierShootSprite = Sprite("assets/player/shoot_black.bmp", "assets/play
 
 Background backgroundSprite = Background("assets/stage1.bmp",0,0);
 
-Player sniperThree = Player(230, 140, 0, 0, temp, false, 3);
+
+Player sniperThree = Player(220, 185, 0, 0, temp, false, 3);
 Player sniperTwo = Player(430, 190, 0, 0, temp, false, 3);
 Player sniperOne = Player(330, 190, 0, 0, temp, false, 3);
+Player sniper4 = Player(220, 185, 0, 0, temp, false, 3);
+Player sniper5 = Player(430, 190, 0, 0, temp, false, 3);
+Player sniper6 = Player(330, 190, 0, 0, temp, false, 3);
+Player sniper7 = Player(220, 185, 0, 0, temp, false, 3);
+Player sniper8 = Player(430, 190, 0, 0, temp, false, 3);
+Player sniper9 = Player(330, 190, 0, 0, temp, false, 3);
+Player sniper10 = Player(220, 185, 0, 0, temp, false, 3);
+Player sniper11 = Player(430, 190, 0, 0, temp, false, 3);
+Player sniper12 = Player(330, 190, 0, 0, temp, false, 3);
+Player sniper13 = Player(220, 185, 0, 0, temp, false, 3);
+Player sniper14 = Player(430, 190, 0, 0, temp, false, 3);
+Player sniper15 = Player(330, 190, 0, 0, temp, false, 3);
 Player soldier = Player(0, 200, 0, 0, temp, true, 1);
 
 
@@ -161,14 +177,60 @@ BOOL Initialize(HWND hwnd)
     sniperOne.setIdle(sniperOneSprite);
     sniperTwo.setIdle(sniperOneSprite);
     sniperThree.setIdle(sniperOneSprite);
+    sniper4.setIdle(sniperOneSprite);
+    sniper5.setIdle(sniperOneSprite);
+    sniper6.setIdle(sniperOneSprite);
+    sniper7.setIdle(sniperOneSprite);
+    sniper8.setIdle(sniperOneSprite);
+    sniper9.setIdle(sniperOneSprite);
+    sniper10.setIdle(sniperOneSprite);
+    sniper11.setIdle(sniperOneSprite);
+    sniper12.setIdle(sniperOneSprite);
+    sniper13.setIdle(sniperOneSprite);
+    sniper14.setIdle(sniperOneSprite);
+    sniper15.setIdle(sniperOneSprite);
+    sniperOne.setDeath(sniperDeath);
+    sniperTwo.setDeath(sniperDeath);
+    sniperThree.setDeath(sniperDeath);
+    sniper4.setDeath(sniperDeath);
+    sniper5.setDeath(sniperDeath);
+    sniper6.setDeath(sniperDeath);
+    sniper7.setDeath(sniperDeath);
+    sniper8.setDeath(sniperDeath);
+    sniper9.setDeath(sniperDeath);
+    sniper10.setDeath(sniperDeath);
+    sniper11.setDeath(sniperDeath);
+    sniper12.setDeath(sniperDeath);
+    sniper13.setDeath(sniperDeath);
+    sniper14.setDeath(sniperDeath);
+    sniper15.setDeath(sniperDeath);
+
+
+
+
     soldier.setIdle(soldierIdleSprite);
     soldier.setMove(soldierMoveSprite);
     soldier.setJump(soldierJumpSprite);
     soldier.setShoot(soldierShootSprite);
-    enemies.push_back(&sniperOne);
-    enemies.push_back(&sniperTwo);
-    enemies.push_back(&sniperThree);
-
+    for(int i = 1; i < 6; ++i) {
+        enemies[i] = std::list<Player*>();
+    }
+    enemies[1].push_back(&sniperOne);
+    enemies[1].push_back(&sniperTwo);
+    enemies[1].push_back(&sniperThree);
+    enemies[2].push_back(&sniper4);
+    enemies[2].push_back(&sniper5);
+    enemies[2].push_back(&sniper6);
+    enemies[3].push_back(&sniper7);
+    enemies[3].push_back(&sniper8);
+    enemies[3].push_back(&sniper9);
+    enemies[4].push_back(&sniper10);
+    enemies[4].push_back(&sniper11);
+    enemies[4].push_back(&sniper12);
+    enemies[5].push_back(&sniper13);
+    enemies[5].push_back(&sniper14);
+    enemies[5].push_back(&sniper15);
+    currentEnemies = enemies[1];
 //    terrainMappings[16] = 195;
 //    terrainMappings[18] = 190;
 //    terrainMappings[20] = 180;
@@ -270,7 +332,8 @@ void FireBullet(int number_of_bullets, Player shooter)
     }
 }
 
-void PlaySound(char* filename){
+void PlaySound(char* filename)
+{
     static long id = 1;
     char cmd[300];
     char name[20];
@@ -340,10 +403,11 @@ void UpdateSprites(RECT * rect)
         backgroundSprite.setX(-MAP_SEGMENT_LENGTH * mapSegementCount);
         soldier.setX(0);
         ++mapSegementCount;
+        currentEnemies = enemies[mapSegementCount];
     }
     // If there's a terrain change, update y position
-    if(terrainMappings.count(soldier.getX()) == 1 && !jump && soldier.getX()<= terrainMappings[soldier.getX()])
-        soldier.setY(terrainMappings[soldier.getX()]);
+    if(currentTerrainMappings.count(soldier.getX()) == 1 && !jump && soldier.getX()<= currentTerrainMappings[soldier.getX()])
+        soldier.setY(currentTerrainMappings[soldier.getX()]);
 }
 
 void move_animation(int key, RECT* rect)
@@ -385,10 +449,31 @@ void DrawAnimation (HDC hdc, RECT * rect)
 
     scoreSprite.draw(hdcBuffer, 400, 22, 1, 0, false);
     livesSprite.draw(hdcBuffer, 10, 10, 1, 0, false);
-
-    for(auto it = enemies.begin(); it != enemies.end(); it++)
+    int i =0;
+    for(auto it = currentEnemies.begin(); it != currentEnemies.end(); it++)
     {
-        (*it)->getIdle().draw(hdcBuffer, (*it)->getX(), (*it)->getY(), 0, 0, false);
+        if((*it)->getDead())
+        {
+      std::cout << (*it)->getDeath().getWidth() << std::endl;
+
+            (*it)->getDeath().draw(hdcBuffer, (*it)->getX(), (*it)->getY(), enemyDeathCounter[i]++, 0, false);
+            if(enemyDeathCounter[i] == (*it)->getDeath().getColumnCount())
+            {
+                it = currentEnemies.erase(it);
+                enemyDeathCounter[i] = 0;
+            }
+        }
+        else
+        {
+            (*it)->getIdle().draw(hdcBuffer, (*it)->getX(), (*it)->getY(), enemyIdle[i]++, 0, false);
+            if(enemyIdle[i] == (*it)->getIdle().getColumnCount())
+            {
+                enemyIdle[i] = 0;
+            }
+
+        }
+
+        ++i;
     }
 
     if(idle && !jump && !shoot)
@@ -458,16 +543,17 @@ void DrawAnimation (HDC hdc, RECT * rect)
     {
 
         (*bullet)->render(hdcBuffer);
-        for(auto it = enemies.begin(); it != enemies.end(); it++)
+        for(auto it = currentEnemies.begin(); it != currentEnemies.end(); it++)
         {
             if((*bullet)->isHit(**it))
             {
 
                 bullet = bullets.erase(bullet);
                 (*it)->decreaseNumLives();
-                if((*it)->getLives() == 0) {
+                if((*it)->getLives() == 0)
+                {
                     (*it)->setDead();
-                   it = enemies.erase(it);
+                    //it = enemies.erase(it);
                 }
             }
         }

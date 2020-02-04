@@ -95,7 +95,7 @@ Sprite::Sprite(const std::string& filenameImg,
   GetObject(img, sizeof(imgInfo), &imgInfo);
       std::cout << filenameImg << std::endl;
 
-    std::cout << imgBitmaskInfo.bmHeight << std::endl;
+    std::cout << imgBitmaskInfo.bmWidth << std::endl;
 
   if(imgBitmaskInfo.bmWidth != imgInfo.bmWidth || imgBitmaskInfo.bmHeight != imgInfo.bmHeight)
     throw std::invalid_argument("Sprite(): incompatibile dimensions of img and bitmaskImg");
