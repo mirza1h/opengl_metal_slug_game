@@ -28,6 +28,8 @@
 void setupSniper(Player & sniper);
 void setupArabian(Player& arabian);
 void setupTerrain();
+void resetGame();
+
 const int SOLDIER_SPEED = 4;
 const int WAIT_TIME = 120;
 const int SNIPER_FIRE_TIME = 1000;
@@ -186,6 +188,8 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
             gameOverScreen.draw(hdc);
             KillTimer(hwnd, SNIPER_TIMER);
             KillTimer(hwnd, ARABIAN_TIMER);
+            KillTimer(hwnd, BOSS_TIMER);
+
         }
         if(PeekMessage(&messages, NULL, 0, 0, PM_REMOVE))
         {
@@ -288,7 +292,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
     case WM_SIZE:
 
         break;
-        
+
     case WM_KEYDOWN:
     {
         GetClientRect(hwnd,&rect);
@@ -329,6 +333,18 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
             break;
         }
         break;
+        case WM_CHAR:
+            switch(wParam)
+            {
+            case 'R':
+            case 'r':
+                if(gameOver)
+                {
+                    resetGame();
+                    gameStarted = Initialize(hwnd);
+                }
+            }
+            break;
     case WM_DESTROY:
         KillTimer(hwnd, SNIPER_TIMER);
         KillTimer(hwnd, ARABIAN_TIMER);
@@ -529,24 +545,30 @@ void UpdateSprites(RECT * rect)
 
     for(auto it = currentEnemies.begin(); it != currentEnemies.end(); ++it)
     {
-        if((*it)->getPlayerType()!= Soldier && (*it)->getPlayerState() != Dead  && soldier.getPlayerState() != Dead && (*it)->isHit(soldier))
+        if((*it)->getPlayerState() != Dead)
         {
-            (*it)->setPlayerState(Shooting);
-            soldier.decreaseNumLives();
-            if(soldier.getLives() == 0)
+            if((*it)->getPlayerType()!= Sniper && soldier.getPlayerState() != Dead && (*it)->isHit(soldier))
             {
+                (*it)->setPlayerState(Shooting);
+                soldier.decreaseNumLives();
+                if(soldier.getLives() == 0)
+                {
 
-                soldier.setPlayerState(Dead);
-                gameOver = true;
+                    soldier.setPlayerState(Dead);
+                    gameOver = true;
+                }
+
+            }
+            else if((*it)->getPlayerState() != Moving && mapSegementCount != 5)
+            {
+                (*it)->setPlayerState(Idle);
             }
 
         }
-        else if((*it)->getPlayerState() != Moving && (*it)->getPlayerState() != Dead && mapSegementCount != 5)
-        {
-            (*it)->setPlayerState(Idle);
-        }
+
     }
-    if(mapSegementCount == 6){
+    if(mapSegementCount == 6)
+    {
         gameOver = true;
     }
 
@@ -605,7 +627,7 @@ void DrawAnimation (HDC hdc, RECT * rect)
                     bossDeathCounter = 0;
                     if(!gameOver)
                     {
-                        gameOver = true
+                        gameOver = true;
                     }
                 }
 
@@ -699,6 +721,7 @@ void DrawAnimation (HDC hdc, RECT * rect)
         {
             soldier.resetFalling();
             soldier.resetJumping();
+            soldier.setY(currentTerrainMappings[soldier.getX()]);
             jumpCounterX = 0;
             jumpCounterY = 0;
         }
@@ -758,6 +781,7 @@ void DrawAnimation (HDC hdc, RECT * rect)
             {
                 soldier.setPlayerState(Dead);
             }
+            delete *bullet;
             bullet = bullets.erase(bullet);
         }
         else
@@ -936,5 +960,39 @@ void setupTerrain()
     terrainFive();
     currentTerrainMappings = terrainMappings[1];
 }
+
+
+
+
+void resetGame()
+{
+     sniperOne = Player(290, 200, 0, 0, temp, false, 3, Sniper);
+     sniperTwo = Player(430, 190, 0, 0, temp, false, 3, Sniper);
+     sniperThree = Player(460, 175, 0, 0, temp, false, 3, Sniper);
+     sniperFour = Player(300, 190, 0, 0, temp, false, 3, Sniper);
+     sniperFive = Player(430, 240, 0, 0, temp, false, 3, Sniper);
+     boss = Player(400, 235, 0, 0, temp, false, 10, Boss);
+     soldier = Player(0, 200, 0, 0, temp, true, 5, Soldier);
+     arabianOne = Player(100, 200, 0, 0, temp, false, 1, Arabian);
+     arabianTwo = Player(110, 165, 0, 0, temp, false, 1, Arabian);
+     arabianThree = Player(360, 200, 0, 0, temp, false, 1, Arabian);
+     arabianFour = Player(220, 175, 0, 0, temp, false, 1, Arabian);
+     currentEnemies.clear();
+     currentTerrainMappings.clear();
+     terrainMappings.clear();
+     mapSegementCount = 1;
+     playerScore = 0;
+     enemies.clear();
+     backgroundSprite = Background("assets/stage1.bmp",0,0);
+     for(auto bullet = bullets.begin(); bullet != bullets.end(); ++bullet)
+     {
+         delete *bullet;
+         bullet = bullets.erase(bullet);
+     }
+     gameOver = false;
+     gameStarted = true;
+}
+
+
 
 
