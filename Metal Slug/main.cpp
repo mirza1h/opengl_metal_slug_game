@@ -7,6 +7,7 @@
 #define SNIPER_TIMER 1
 #define ARABIAN_TIMER 2
 #define BOSS_TIMER 3
+#define MUSIC_TIMER 4
 
 #define PRESSED(vk_code) ((GetAsyncKeyState(vk_code) & 0x8000) ? 1 : 0)
 #include <tchar.h>
@@ -32,8 +33,11 @@ const int WAIT_TIME = 120;
 const int SNIPER_FIRE_TIME = 1000;
 const int BOSS_FIRE_TIME = 500;
 const int ARABIAN_RUNNING_TIME = 1000;
-const int MAP_SEGMENT_LENGTH = 540;
+const int MAP_SEGMENT_LENGTH = 544;
 const int pauseTime = 20;
+const int MUSIC_LENGTH = 50000;
+bool gameStarted = false;
+bool gameOver = false;
 
 void DrawAnimation (HDC hdc, RECT * rect);
 void UpdateSprites (RECT * rect);
@@ -85,6 +89,8 @@ Sprite soldierShootSprite = Sprite("assets/player/shoot_black.bmp", "assets/play
 Sprite soldierDeathSprite = Sprite("assets/player/death_black.bmp", "assets/player/death_white.bmp", 0, 0, 6, 1);
 
 Background backgroundSprite = Background("assets/stage1.bmp",0,0);
+Background gameSplashScreen = Background("assets/splash_screen.bmp",0,0);
+Background gameOverScreen = Background("assets/game_over.bmp",0,0);
 
 Player sniperOne = Player(290, 200, 0, 0, temp, false, 3, Sniper);
 Player sniperTwo = Player(430, 190, 0, 0, temp, false, 3, Sniper);
@@ -94,7 +100,7 @@ Player sniperFive = Player(430, 240, 0, 0, temp, false, 3, Sniper);
 
 Player boss = Player(400, 235, 0, 0, temp, false, 10, Boss);
 
-Player soldier = Player(0, 200, 0, 0, temp, true, 3, Soldier);
+Player soldier = Player(0, 200, 0, 0, temp, true, 5, Soldier);
 
 Player arabianOne = Player(100, 200, 0, 0, temp, false, 1, Arabian);
 Player arabianTwo = Player(110, 165, 0, 0, temp, false, 1, Arabian);
@@ -160,37 +166,42 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
                CW_USEDEFAULT,       /* Windows decides the position */
                CW_USEDEFAULT,       /* where the window ends up on the screen */
                544,                 /* The programs width */
-               302,                 /* and height in pixels */
+               290,                 /* and height in pixels */
                HWND_DESKTOP,        /* The window is a child-window to desktop */
                NULL,                /* No menu */
                hThisInstance,       /* Program Instance handler */
                NULL                 /* No Window Creation data */
            );
-
     /* Make the window visible on the screen */
     ShowWindow (hwnd, nCmdShow);
     // Gameloop
-    if(Initialize(hwnd))
+    PlaySound("sounds/theme.wav");
+    HDC hdc = GetDC(hwnd);
+    gameSplashScreen.draw(hdc);
+    while(TRUE)
     {
-        while(TRUE)
+        DWORD startTime;
+        if(gameOver == true)
         {
-            DWORD startTime;
-
-            if(PeekMessage(&messages, NULL, 0, 0, PM_REMOVE))
+            gameOverScreen.draw(hdc);
+            KillTimer(hwnd, SNIPER_TIMER);
+            KillTimer(hwnd, ARABIAN_TIMER);
+        }
+        if(PeekMessage(&messages, NULL, 0, 0, PM_REMOVE))
+        {
+            if(messages.message == WM_QUIT)
             {
-                if(messages.message == WM_QUIT)
-                {
-                    break;
-                }
-                TranslateMessage(&messages);
-                DispatchMessage(&messages);
+                break;
             }
-            startTime = GetTickCount();
+            TranslateMessage(&messages);
+            DispatchMessage(&messages);
+        }
+        startTime = GetTickCount();
+        if(gameStarted && !gameOver)
             Render(hwnd);
-            while((GetTickCount() - startTime) < pauseTime)
-            {
-                Sleep(60);
-            }
+        while((GetTickCount() - startTime) < pauseTime)
+        {
+            Sleep(60);
         }
     }
 
@@ -203,6 +214,7 @@ BOOL Initialize(HWND hwnd)
     SetTimer(hwnd, SNIPER_TIMER, SNIPER_FIRE_TIME, NULL);
     SetTimer(hwnd, BOSS_TIMER, BOSS_FIRE_TIME, NULL);
     SetTimer(hwnd, ARABIAN_TIMER, ARABIAN_RUNNING_TIME, NULL);
+    SetTimer(hwnd, MUSIC_TIMER, MUSIC_LENGTH, NULL);
 
     setupTerrain();
     setupSniper(sniperOne);
@@ -240,8 +252,6 @@ BOOL Initialize(HWND hwnd)
 
     enemies[5].push_back(&boss);
     currentEnemies = enemies[1];
-
-    //PlaySound("sounds/theme.wav");
     return true;
 }
 /*  This function is called by the Windows function DispatchMessage()  */
@@ -249,14 +259,8 @@ BOOL Initialize(HWND hwnd)
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     RECT rect;
-    int mouseX, mouseY;
     switch (message)                  /* handle the messages */
     {
-    case WM_LBUTTONDOWN:
-        mouseX = GET_X_LPARAM(lParam);
-        mouseY = GET_Y_LPARAM(lParam);
-        printf("x: %d\n", mouseX);
-        printf("y: %d\n", mouseY);
         break;
     case WM_TIMER:
         switch (wParam)
@@ -277,10 +281,14 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 }
             }
             return 0;
+        case MUSIC_TIMER:
+            PlaySound("sounds/theme.wav");
+            break;
         }
     case WM_SIZE:
 
         break;
+        
     case WM_KEYDOWN:
     {
         GetClientRect(hwnd,&rect);
@@ -291,6 +299,14 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
                 soldier.setPlayerState(Shooting);
                 FireBullet(1, soldier);
             }
+        }
+        if(wParam == VK_RETURN)
+        {
+            gameStarted = Initialize(hwnd);
+        }
+        if(wParam == VK_ESCAPE)
+        {
+            ExitProcess(1);
         }
     }
     break;
@@ -341,7 +357,7 @@ void SniperFire()
                 FireBullet(1, sniperTwo);
         }
     }
-    if(mapSegementCount == 2)
+    if(mapSegementCount == 2 && arabianTwo.getPlayerState() == Dead)
     {
         if(sniperThree.getPlayerState() != Dead)
         {
@@ -378,7 +394,7 @@ void ArabianAttacks()
         }
         else
         {
-            if(arabianThree.getPlayerState() != Dead && arabianThree.getPlayerState() != Shooting && soldier.getX() >= 250)
+            if(arabianThree.getPlayerState() != Dead && arabianThree.getPlayerState() != Shooting && soldier.getX() >= 210)
                 arabianThree.setPlayerState(Moving);
         }
     }
@@ -497,7 +513,6 @@ void UpdateSprites(RECT * rect)
     if(currentTerrainMappings.count(soldier.getX()) == 1 && (soldier.getJumping() == false))
     {
         soldier.setY(currentTerrainMappings[soldier.getX()]);
-//        std::cout <<  "X: " << soldier.getX() <<  " Y: " <<  currentTerrainMappings[soldier.getX()] << std::endl;
     }
 
     for(auto it = currentEnemies.begin(); it != currentEnemies.end(); ++it)
@@ -512,7 +527,6 @@ void UpdateSprites(RECT * rect)
         }
     }
 
-
     for(auto it = currentEnemies.begin(); it != currentEnemies.end(); ++it)
     {
         if((*it)->getPlayerType()!= Soldier && (*it)->getPlayerState() != Dead  && soldier.getPlayerState() != Dead && (*it)->isHit(soldier))
@@ -523,7 +537,7 @@ void UpdateSprites(RECT * rect)
             {
 
                 soldier.setPlayerState(Dead);
-
+                gameOver = true;
             }
 
         }
@@ -531,6 +545,9 @@ void UpdateSprites(RECT * rect)
         {
             (*it)->setPlayerState(Idle);
         }
+    }
+    if(mapSegementCount == 6){
+        gameOver = true;
     }
 
 }
@@ -586,6 +603,10 @@ void DrawAnimation (HDC hdc, RECT * rect)
                 if(bossDeathCounter < 0)
                 {
                     bossDeathCounter = 0;
+                    if(!gameOver)
+                    {
+                        gameOver = true
+                    }
                 }
 
             }
@@ -641,9 +662,7 @@ void DrawAnimation (HDC hdc, RECT * rect)
             {
                 enemyIdle[i] = 0;
             }
-
         }
-
         ++i;
     }
     if(soldier.getJumping())
@@ -689,7 +708,7 @@ void DrawAnimation (HDC hdc, RECT * rect)
         deathCounter++;
         if(deathCounter == 6)
         {
-            soldier.setLives();
+            gameOver = true;
             soldier.setX(0);
             soldier.setY(currentTerrainMappings[0]);
             soldier.setPlayerState(Idle);
@@ -717,7 +736,6 @@ void DrawAnimation (HDC hdc, RECT * rect)
     }
     else
     {
-
         ++animationCounter;
         if(animationCounter == 6)
         {
