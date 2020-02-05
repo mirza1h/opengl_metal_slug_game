@@ -33,7 +33,7 @@ void resetGame();
 const int SOLDIER_SPEED = 4;
 const int WAIT_TIME = 120;
 const int SNIPER_FIRE_TIME = 1000;
-const int BOSS_FIRE_TIME = 500;
+const int BOSS_FIRE_TIME = 1000;
 const int ARABIAN_RUNNING_TIME = 1000;
 const int MAP_SEGMENT_LENGTH = 544;
 const int pauseTime = 20;
@@ -93,6 +93,7 @@ Sprite soldierDeathSprite = Sprite("assets/player/death_black.bmp", "assets/play
 Background backgroundSprite = Background("assets/stage1.bmp",0,0);
 Background gameSplashScreen = Background("assets/splash_screen.bmp",0,0);
 Background gameOverScreen = Background("assets/game_over.bmp",0,0);
+Sprite missionCompleteSprite = Sprite("assets/mission_complete_black.bmp", "assets/mission_complete_white.bmp", 0, 0, 1, 1);
 
 Player sniperOne = Player(290, 200, 0, 0, temp, false, 3, Sniper);
 Player sniperTwo = Player(430, 190, 0, 0, temp, false, 3, Sniper);
@@ -102,9 +103,9 @@ Player sniperFive = Player(430, 240, 0, 0, temp, false, 3, Sniper);
 
 Player boss = Player(400, 235, 0, 0, temp, false, 10, Boss);
 
-Player soldier = Player(0, 200, 0, 0, temp, true, 5, Soldier);
+Player soldier = Player(0, 200, 0, 0, temp, true, 6, Soldier);
 
-Player arabianOne = Player(100, 200, 0, 0, temp, false, 1, Arabian);
+Player arabianOne = Player(110, 200, 0, 0, temp, false, 1, Arabian);
 Player arabianTwo = Player(110, 165, 0, 0, temp, false, 1, Arabian);
 Player arabianThree = Player(360, 200, 0, 0, temp, false, 1, Arabian);
 Player arabianFour = Player(220, 175, 0, 0, temp, false, 1, Arabian);
@@ -185,11 +186,15 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
         DWORD startTime;
         if(gameOver == true)
         {
-            gameOverScreen.draw(hdc);
-            KillTimer(hwnd, SNIPER_TIMER);
-            KillTimer(hwnd, ARABIAN_TIMER);
-            KillTimer(hwnd, BOSS_TIMER);
-
+            if(boss.getPlayerState() == Dead){
+                missionCompleteSprite.draw(hdc, 0, 0, 0, 0);
+                PlaySound("sounds/mission_complete.wav");
+            }
+            else{
+                gameOverScreen.draw(hdc);
+                KillTimer(hwnd, SNIPER_TIMER);
+                KillTimer(hwnd, ARABIAN_TIMER);
+            }
         }
         if(PeekMessage(&messages, NULL, 0, 0, PM_REMOVE))
         {
@@ -219,7 +224,7 @@ BOOL Initialize(HWND hwnd)
     SetTimer(hwnd, BOSS_TIMER, BOSS_FIRE_TIME, NULL);
     SetTimer(hwnd, ARABIAN_TIMER, ARABIAN_RUNNING_TIME, NULL);
     SetTimer(hwnd, MUSIC_TIMER, MUSIC_LENGTH, NULL);
-
+    PlaySound("sounds/mission_start.wav");
     setupTerrain();
     setupSniper(sniperOne);
     setupSniper(sniperTwo);
@@ -296,17 +301,20 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
     case WM_KEYDOWN:
     {
         GetClientRect(hwnd,&rect);
-        if(wParam == VK_SPACE)
-        {
-            if(soldier.getPlayerState() != Dead && !soldier.getJumping())
+        if(gameStarted == true){
+            if(wParam == VK_SPACE)
             {
-                soldier.setPlayerState(Shooting);
-                FireBullet(1, soldier);
+                if(soldier.getPlayerState() != Dead && !soldier.getJumping())
+                {
+                    soldier.setPlayerState(Shooting);
+                    FireBullet(1, soldier);
+                }
             }
         }
         if(wParam == VK_RETURN)
         {
-            gameStarted = Initialize(hwnd);
+            if(!gameStarted)
+                gameStarted = Initialize(hwnd);
         }
         if(wParam == VK_ESCAPE)
         {
@@ -361,7 +369,7 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
 
 void SniperFire()
 {
-    if(mapSegementCount == 1)
+    if(mapSegementCount == 1 && arabianOne.getPlayerState() == Dead)
     {
         if(sniperOne.getPlayerState() != Dead)
         {
@@ -432,16 +440,18 @@ void Render(HWND hwnd)
 
 void FireBullet(int number_of_bullets, Player shooter)
 {
-    Sprite temp = bulletSprite;
-    if (shooter.getPlayerType() == Boss)
-        temp = bossBulletSprite;
-    else if(shooter.getPlayerType() == Sniper)
-        temp = sniperBulletSprite;
-    for(int i = 0; i < number_of_bullets; ++i)
-    {
-        PlaySound("sounds/gun.wav");
-        Bullet* bulletObj = new Bullet(shooter, temp, shooter.getDirection());
-        bullets.push_back(bulletObj);
+    if(shooter.getPlayerState() != Dead && !gameOver){
+        Sprite temp = bulletSprite;
+        if (shooter.getPlayerType() == Boss)
+            temp = bossBulletSprite;
+        else if(shooter.getPlayerType() == Sniper)
+            temp = sniperBulletSprite;
+        for(int i = 0; i < number_of_bullets; ++i)
+        {
+            PlaySound("sounds/gun.wav");
+            Bullet* bulletObj = new Bullet(shooter, temp, shooter.getDirection());
+            bullets.push_back(bulletObj);
+        }
     }
 }
 
