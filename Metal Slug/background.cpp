@@ -23,17 +23,18 @@ Background::Background(const std::string& filename, int width, int height) :
 
 RECT Background::getDimensions() const
 {
-    RECT returnRECT;
+  RECT returnRECT;
 
-    returnRECT.left = returnRECT.top = 0;
-    returnRECT.right = getWidth();
-    returnRECT.bottom = getHeight();
+  returnRECT.left = returnRECT.top = 0;
+  returnRECT.right = getWidth();
+  returnRECT.bottom = getHeight();
 
-    return returnRECT;
+  return returnRECT;
 }
 
 
-bool Background::isPointBelongToBackground(POINT pt) const
-{
-    return pt.x >= 0 && pt.y >= 0 && pt.x < backgroundInfo.bmWidth && pt.y < backgroundInfo.bmHeight;
-}
+ bool Background::isPointBelongToBackground(POINT pt) const
+ {
+     return pt.x >= 0 && pt.y >= 0 && pt.x < backgroundInfo.bmWidth && pt.y < backgroundInfo.bmHeight;
+ }
+

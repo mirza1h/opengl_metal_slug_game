@@ -2,7 +2,7 @@
 #include "player.hpp"
 #include <iostream>
 
-void Sprite::draw(HDC bufferHDC, int xPos, int yPos, std::size_t spriteCountX, std::size_t spriteCountY = 0, bool inverted = false)
+void Sprite::draw(HDC bufferHDC, int xPos, int yPos, std::size_t spriteCountX, std::size_t spriteCountY = 0)
 {
     spriteCountX = spriteCountX % (columns * rows);
 
@@ -11,17 +11,13 @@ void Sprite::draw(HDC bufferHDC, int xPos, int yPos, std::size_t spriteCountX, s
     HDC tmpHDC = CreateCompatibleDC(bufferHDC);
     HBITMAP oldBITMAP = (HBITMAP)SelectObject(tmpHDC, imgBitmask);
 
-    if(inverted)
-        StretchBlt(bufferHDC, xPos, yPos, getWidth(), getHeight(), tmpHDC, posX + getWidth() - 1, posY, -getWidth(), getHeight(), SRCAND);
-    else
-        BitBlt(bufferHDC, xPos, yPos, getWidth(), getHeight(), tmpHDC, posX, posY, SRCAND);
+
+    BitBlt(bufferHDC, xPos, yPos, getWidth(), getHeight(), tmpHDC, posX, posY, SRCAND);
 
     SelectObject(tmpHDC, img);
 
-    if(inverted)
-        StretchBlt(bufferHDC, xPos, yPos, getWidth(), getHeight(), tmpHDC, posX + getWidth() - 1, posY, -getWidth(), getHeight(), SRCPAINT);
-    else
-        BitBlt(bufferHDC, xPos, yPos, getWidth(), getHeight(), tmpHDC, posX, posY, SRCPAINT);
+
+    BitBlt(bufferHDC, xPos, yPos, getWidth(), getHeight(), tmpHDC, posX, posY, SRCPAINT);
 
 
     SelectObject(tmpHDC, oldBITMAP);

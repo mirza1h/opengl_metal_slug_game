@@ -49,31 +49,13 @@ void Player::playerJump()
     }
 }
 
-void Player::moveToPoint(POINT pt)
-{
-    if(pt.x > xPos)
-        direction = true;
-    else if(pt.x < xPos)
-        direction = false;
-
-    xPos = pt.x;
-    yPos = pt.y;
-}
-
-POINT Player::getCurrentPosition() const
-{
-    POINT pt;
-    pt.x = xPos;
-    pt.y = yPos;
-    return pt;
-}
 
 
 bool Player::isHit(const Player& target)
 {
 
         return (xPos >= target.getX() && xPos <= target.getX() + target.getWidth())
-             && (yPos >= target.getY() && yPos <= target.getY() + target.getHeight())
+             && (yPos >= target.getY() || yPos <= target.getY() + target.getHeight())
              && target.getHumanPlayer();
 
 }

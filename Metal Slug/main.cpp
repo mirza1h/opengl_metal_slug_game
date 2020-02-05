@@ -6,6 +6,7 @@
 
 #define SNIPER_TIMER 1
 #define ARABIAN_TIMER 2
+#define BOSS_TIMER 3
 
 #define PRESSED(vk_code) ((GetAsyncKeyState(vk_code) & 0x8000) ? 1 : 0)
 #include <tchar.h>
@@ -28,7 +29,8 @@ void setupArabian(Player& arabian);
 void setupTerrain();
 const int SOLDIER_SPEED = 4;
 const int WAIT_TIME = 120;
-const int SNIPER_FIRE_TIME = 1500;
+const int SNIPER_FIRE_TIME = 1000;
+const int BOSS_FIRE_TIME = 500;
 const int ARABIAN_RUNNING_TIME = 1000;
 const int MAP_SEGMENT_LENGTH = 540;
 const int pauseTime = 20;
@@ -57,28 +59,30 @@ std::map<int,std::map<int, int>> terrainMappings;
 std::map<int, int> currentTerrainMappings;
 
 RECT temp;
-Sprite bulletSprite = Sprite("assets/cartouche_droite_bullet_black.bmp","assets/cartouche_droite_bullet_white.bmp", 0, 0, 1, 1);
+Sprite bulletSprite = Sprite("assets/bullet_black.bmp","assets/bullet_white.bmp", 0, 0, 1, 1);
+Sprite bossBulletSprite = Sprite("assets/boss_bullet_black.bmp", "assets/boss_bullet_white.bmp", 0, 0, 1, 1);
+Sprite sniperBulletSprite = Sprite("assets/sniper_bullet_black.bmp","assets/sniper_bullet_white.bmp", 0, 0, 1, 1);
+
 Sprite scoreSprite = Sprite("assets/score_black.bmp","assets/score_white.bmp", 0, 0, 1, 1);
 Sprite livesSprite = Sprite("assets/lives_black.bmp","assets/lives_white.bmp", 0, 0, 1, 1);
-Sprite bossBulletSprite = Sprite("assets/cartouche_boss2_bullet_black.bmp", "assets/cartouche_boss2_bullet_white.bmp", 0, 0, 1, 1);
 
-Sprite sniperOneSprite = Sprite("assets/sniper_gauche/sniper_idle_black.bmp","assets/sniper_gauche/sniper_idle_white.bmp", 0, 0, 1, 1);
-Sprite sniperDeath = Sprite("assets/sniper_gauche/sniper_death_black.bmp","assets/sniper_gauche/sniper_death_white.bmp", 0, 0, 5, 1);
+Sprite sniperOneSprite = Sprite("assets/sniper/sniper_idle_black.bmp","assets/sniper/sniper_idle_white.bmp", 0, 0, 1, 1);
+Sprite sniperDeath = Sprite("assets/sniper/sniper_death_black.bmp","assets/sniper/sniper_death_white.bmp", 0, 0, 5, 1);
 
 Sprite bossIdleSprite = Sprite("assets/boss/boss_idle_black.bmp", "assets/boss/boss_idle_white.bmp", 0, 0, 1, 1);
-Sprite bossShootSprite = Sprite("assets/boss/boss_shoot_black.bmp", "assets/boss/boss_shoot_white.bmp", 0, 0, 4, 1);
-Sprite bossDeathSprite = Sprite("assets/boss/boss_death_black.bmp", "assets/boss/boss_death_white.bmp", 0, 0, 6, 1);
+Sprite bossShootSprite = Sprite("assets/boss/boss_shoot_black.bmp", "assets/boss/boss_shoot_white.bmp", 0, 0, 4, 2);
+Sprite bossDeathSprite = Sprite("assets/boss/boss_death_black.bmp", "assets/boss/boss_death_white.bmp", 0, 0, 5, 1);
 
-Sprite arabianOneIdleSprite = Sprite("assets/arabian/ennemie_arabian_gauche_idle_black.bmp","assets/arabian/ennemie_arabian_gauche_idle_white.bmp", 0, 0, 6, 1);
-Sprite arabianOneMoveSprite = Sprite("assets/arabian/ennemie_arabian_gauche_running_black.bmp","assets/arabian/ennemie_arabian_gauche_running_white.bmp", 0, 0, 12, 1);
-Sprite arabianOneShootSprite = Sprite("assets/arabian/ennemie_arabian_gauche_attack_black.bmp","assets/arabian/ennemie_arabian_gauche_attack_white.bmp", 0, 0, 2, 1);
-Sprite arabianOneDeathSprite = Sprite("assets/arabian/ennemie_arabian_gauche_death_black.bmp","assets/arabian/ennemie_arabian_gauche_death_white.bmp", 0, 0, 5, 1);
+Sprite arabianOneIdleSprite = Sprite("assets/arabian/arabian_idle_black.bmp","assets/arabian/arabian_idle_white.bmp", 0, 0, 4, 1);
+Sprite arabianOneMoveSprite = Sprite("assets/arabian/arabian_running_black.bmp","assets/arabian/arabian_running_white.bmp", 0, 0, 12, 1);
+Sprite arabianOneShootSprite = Sprite("assets/arabian/arabian_attack_black.bmp","assets/arabian/arabian_attack_white.bmp", 0, 0, 2, 1);
+Sprite arabianOneDeathSprite = Sprite("assets/arabian/arabian_death_black.bmp","assets/arabian/arabian_death_white.bmp", 0, 0, 5, 1);
 
 Sprite soldierMoveSprite = Sprite("assets/player/move_right_black.bmp", "assets/player/move_right_white.bmp", 0, 0, 6, 1);
 Sprite soldierIdleSprite = Sprite("assets/player/idle_right_black.bmp", "assets/player/idle_right_white.bmp", 0, 0, 4, 1);
 Sprite soldierJumpSprite = Sprite("assets/player/jump_right_black.bmp", "assets/player/jump_right_white.bmp", 0, 0, 4, 3);
 Sprite soldierShootSprite = Sprite("assets/player/shoot_black.bmp", "assets/player/shoot_white.bmp", 0, 0, 4, 1);
-Sprite soldierDeathSprite = Sprite("assets/player/death_black.bmp", "assets/player/death_white.bmp", 0, 0, 4, 1);
+Sprite soldierDeathSprite = Sprite("assets/player/death_black.bmp", "assets/player/death_white.bmp", 0, 0, 6, 1);
 
 Background backgroundSprite = Background("assets/stage1.bmp",0,0);
 
@@ -88,7 +92,7 @@ Player sniperThree = Player(460, 175, 0, 0, temp, false, 3, Sniper);
 Player sniperFour = Player(300, 190, 0, 0, temp, false, 3, Sniper);
 Player sniperFive = Player(430, 240, 0, 0, temp, false, 3, Sniper);
 
-Player boss = Player(400, 205, 0, 0, temp, false, 10, Boss);
+Player boss = Player(400, 235, 0, 0, temp, false, 10, Boss);
 
 Player soldier = Player(0, 200, 0, 0, temp, true, 3, Soldier);
 
@@ -103,9 +107,12 @@ int jumpCounterX = 0;
 int jumpCounterY = 0;
 int shootCounter = 0;
 int deathCounter = 0;
+int bossIdleCounter = 0;
+int bossShootCounterX = 3;
+int bossShootCounterY = 0;
+
+int bossDeathCounter = 4;
 int mapSegementCount = 1;
-bool move_right = false;
-bool reachedTarget = false;
 size_t playerScore = 0;
 
 /*  Declare Windows procedure  */
@@ -194,6 +201,7 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
 BOOL Initialize(HWND hwnd)
 {
     SetTimer(hwnd, SNIPER_TIMER, SNIPER_FIRE_TIME, NULL);
+    SetTimer(hwnd, BOSS_TIMER, BOSS_FIRE_TIME, NULL);
     SetTimer(hwnd, ARABIAN_TIMER, ARABIAN_RUNNING_TIME, NULL);
 
     setupTerrain();
@@ -241,7 +249,6 @@ BOOL Initialize(HWND hwnd)
 LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     RECT rect;
-    static int width, height;
     int mouseX, mouseY;
     switch (message)                  /* handle the messages */
     {
@@ -260,17 +267,26 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         case ARABIAN_TIMER:
             ArabianAttacks();
             return 0;
+        case BOSS_TIMER:
+            if(mapSegementCount == 5)
+            {
+                if(boss.getPlayerState() != Dead)
+                {
+                    FireBullet(1, boss);
+                    boss.setPlayerState(Shooting);
+                }
+            }
+            return 0;
         }
     case WM_SIZE:
-        width = LOWORD(lParam);
-        height = HIWORD(lParam);
+
         break;
     case WM_KEYDOWN:
     {
         GetClientRect(hwnd,&rect);
         if(wParam == VK_SPACE)
         {
-            if(soldier.getPlayerState() !=Dead)
+            if(soldier.getPlayerState() != Dead && !soldier.getJumping())
             {
                 soldier.setPlayerState(Shooting);
                 FireBullet(1, soldier);
@@ -282,7 +298,6 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         switch(wParam)
         {
         case VK_RIGHT:
-            move_right = false;
             if(soldier.getPlayerState() != Dead)
             {
                 soldier.setPlayerState(Idle);
@@ -300,6 +315,9 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM
         break;
     case WM_DESTROY:
         KillTimer(hwnd, SNIPER_TIMER);
+        KillTimer(hwnd, ARABIAN_TIMER);
+        KillTimer(hwnd, BOSS_TIMER);
+
         PostQuitMessage (0);       /* send a WM_QUIT to the message queue */
         break;
     default:                      /* for messages that we don't deal with */
@@ -342,14 +360,7 @@ void SniperFire()
         if(sniperFive.getPlayerState() != Dead)
             FireBullet(1, sniperFive);
     }
-    if(mapSegementCount == 5)
-    {
-        if(boss.getPlayerState() != Dead)
-        {
-            FireBullet(1, boss);
-            boss.setPlayerState(Shooting);
-        }
-    }
+
 }
 
 void ArabianAttacks()
@@ -361,7 +372,8 @@ void ArabianAttacks()
     }
     if(mapSegementCount == 2)
     {
-        if(arabianTwo.getPlayerState() != Dead && arabianTwo.getPlayerState() != Shooting){
+        if(arabianTwo.getPlayerState() != Dead && arabianTwo.getPlayerState() != Shooting)
+        {
             arabianTwo.setPlayerState(Moving);
         }
         else
@@ -391,6 +403,8 @@ void FireBullet(int number_of_bullets, Player shooter)
     Sprite temp = bulletSprite;
     if (shooter.getPlayerType() == Boss)
         temp = bossBulletSprite;
+    else if(shooter.getPlayerType() == Sniper)
+        temp = sniperBulletSprite;
     for(int i = 0; i < number_of_bullets; ++i)
     {
         PlaySound("sounds/gun.wav");
@@ -497,22 +511,21 @@ void UpdateSprites(RECT * rect)
             }
         }
     }
-//    if(arabianOne.isHit(soldier))
-//    {
-//        reachedTarget = true;
-//        arabianOne.setPlayerState(Shooting);
-//    }
+
 
     for(auto it = currentEnemies.begin(); it != currentEnemies.end(); ++it)
     {
-        if((*it)->getShoot().getColumnCount() != 0 && (*it)->getPlayerState() != Dead  && soldier.getPlayerState() != Dead && (*it)->isHit(soldier))
+        if((*it)->getPlayerType()!= Soldier && (*it)->getPlayerState() != Dead  && soldier.getPlayerState() != Dead && (*it)->isHit(soldier))
         {
             (*it)->setPlayerState(Shooting);
             soldier.decreaseNumLives();
             if(soldier.getLives() == 0)
             {
+
                 soldier.setPlayerState(Dead);
+
             }
+
         }
         else if((*it)->getPlayerState() != Moving && (*it)->getPlayerState() != Dead && mapSegementCount != 5)
         {
@@ -521,6 +534,8 @@ void UpdateSprites(RECT * rect)
     }
 
 }
+
+
 
 void move_animation(int key, RECT* rect)
 {
@@ -558,24 +573,36 @@ void DrawAnimation (HDC hdc, RECT * rect)
 
     backgroundSprite.draw(hdcBuffer);
 
-    scoreSprite.draw(hdcBuffer, 400, 22, 1, 0, false);
-    livesSprite.draw(hdcBuffer, 10, 10, 1, 0, false);
+    scoreSprite.draw(hdcBuffer, 400, 22, 1, 0);
+    livesSprite.draw(hdcBuffer, 10, 10, 1, 0);
     int i = 0;
     for(auto it = currentEnemies.begin(); it != currentEnemies.end(); it++)
     {
         if((*it)->getPlayerState() == Dead)
         {
-            (*it)->getDeath().draw(hdcBuffer, (*it)->getX(), (*it)->getY(), enemyDeathCounter[i]++, 0, false);
-            if(enemyDeathCounter[i] == (*it)->getDeath().getColumnCount())
+            if((*it)->getPlayerType() == Boss)
             {
-                it = currentEnemies.erase(it);
-                ++playerScore;
-                enemyDeathCounter[i] = 0;
+                (*it)->getDeath().draw(hdcBuffer, (*it)->getX(), (*it)->getY(), bossDeathCounter--, 0);
+                if(bossDeathCounter < 0)
+                {
+                    bossDeathCounter = 0;
+                }
+
             }
+            else
+            {
+                (*it)->getDeath().draw(hdcBuffer, (*it)->getX(), (*it)->getY(), enemyDeathCounter[i]++, 0);
+                if(enemyDeathCounter[i] == (*it)->getDeath().getColumnCount())
+                {
+                    it = currentEnemies.erase(it);
+                    enemyDeathCounter[i] = 0;
+                }
+            }
+
         }
         else if((*it)->getPlayerState() == Moving)
         {
-            (*it)->getMoving().draw(hdcBuffer, (*it)->getX(), (*it)->getY(), enemyMovingCounter[i]++, 0, false);
+            (*it)->getMoving().draw(hdcBuffer, (*it)->getX(), (*it)->getY(), enemyMovingCounter[i]++, 0);
             if(enemyMovingCounter[i] == (*it)->getMoving().getColumnCount())
             {
                 enemyMovingCounter[i] = 0;
@@ -583,15 +610,33 @@ void DrawAnimation (HDC hdc, RECT * rect)
         }
         else if((*it)->getPlayerState() == Shooting)
         {
-            (*it)->getShoot().draw(hdcBuffer, (*it)->getX(), (*it)->getY(), enemyShootingCounter[i]++, 0, false);
-            if(enemyShootingCounter[i] == (*it)->getShoot().getColumnCount())
+            if((*it)->getPlayerType() == Boss)
             {
-                enemyShootingCounter[i] = 0;
+                (*it)->getShoot().draw(hdcBuffer, (*it)->getX() - 30, (*it)->getY() - 20, bossShootCounterX--, bossShootCounterY);
+                if(bossShootCounterX < 0)
+                {
+                    bossShootCounterX = 4;
+                    bossShootCounterY++;
+                    if(bossShootCounterY == 2)
+                    {
+                        bossShootCounterY = 0;
+                    }
+                }
+
             }
+            else
+            {
+                (*it)->getShoot().draw(hdcBuffer, (*it)->getX(), (*it)->getY(), enemyShootingCounter[i]++, 0);
+                if(enemyShootingCounter[i] == (*it)->getShoot().getColumnCount())
+                {
+                    enemyShootingCounter[i] = 0;
+                }
+            }
+
         }
         else
         {
-            (*it)->getIdle().draw(hdcBuffer, (*it)->getX(), (*it)->getY(), enemyIdle[i]++, 0, false);
+            (*it)->getIdle().draw(hdcBuffer, (*it)->getX(), (*it)->getY(), enemyIdle[i]++, 0);
             if(enemyIdle[i] == (*it)->getIdle().getColumnCount())
             {
                 enemyIdle[i] = 0;
@@ -603,23 +648,23 @@ void DrawAnimation (HDC hdc, RECT * rect)
     }
     if(soldier.getJumping())
     {
-        soldier.getJump().draw(hdcBuffer, soldier.getX(), soldier.getY(), jumpCounterX, jumpCounterY, false);
+        soldier.getJump().draw(hdcBuffer, soldier.getX(), soldier.getY(), jumpCounterX, jumpCounterY);
     }
     else if(soldier.getPlayerState() == Dead)
     {
-        soldier.getDeath().draw(hdcBuffer, soldier.getX(), soldier.getY(), deathCounter, 0, false);
+        soldier.getDeath().draw(hdcBuffer, soldier.getX(), soldier.getY(), deathCounter, 0);
     }
     else if (soldier.getPlayerState() == Shooting)
     {
-        soldier.getShoot().draw(hdcBuffer, soldier.getX(), soldier.getY(), shootCounter, 0, false);
+        soldier.getShoot().draw(hdcBuffer, soldier.getX(), soldier.getY(), shootCounter, 0);
     }
     else if(soldier.getPlayerState() == Idle)
     {
-        soldier.getIdle().draw(hdcBuffer, soldier.getX(), soldier.getY(), idleAnimationCounter, 0, false);
+        soldier.getIdle().draw(hdcBuffer, soldier.getX(), soldier.getY(), idleAnimationCounter, 0);
     }
     else
     {
-        soldier.getMoving().draw(hdcBuffer, soldier.getX(), soldier.getY(), animationCounter, 0, false);
+        soldier.getMoving().draw(hdcBuffer, soldier.getX(), soldier.getY(), animationCounter, 0);
     }
 
     if(soldier.getJumping())
@@ -642,7 +687,7 @@ void DrawAnimation (HDC hdc, RECT * rect)
     else if(soldier.getPlayerState() == Dead)
     {
         deathCounter++;
-        if(deathCounter == 4)
+        if(deathCounter == 6)
         {
             soldier.setLives();
             soldier.setX(0);
@@ -683,29 +728,40 @@ void DrawAnimation (HDC hdc, RECT * rect)
     for(auto bullet = bullets.begin(); bullet != bullets.end(); ++bullet)
     {
         (*bullet)->render(hdcBuffer);
-        if((*bullet)->isHit(soldier))
+        if((*bullet)->getX() >= MAP_SEGMENT_LENGTH)
+        {
+            delete *bullet;
+            bullet = bullets.erase(bullet);
+        }
+        else if((*bullet)->isHit(soldier))
         {
             soldier.decreaseNumLives();
             if(soldier.getLives() == 0)
             {
                 soldier.setPlayerState(Dead);
             }
+            bullet = bullets.erase(bullet);
         }
-        for(auto it = currentEnemies.begin(); it != currentEnemies.end(); it++)
+        else
         {
-            if((*bullet)->isHit(**it))
+            for(auto it = currentEnemies.begin(); it != currentEnemies.end(); it++)
             {
-                bullet = bullets.erase(bullet);
-                (*it)->decreaseNumLives();
-                std::cout << (*it)->getLives() << std::endl;
-
-                if((*it)->getLives() == 0)
+                if((*bullet)->isHit(**it))
                 {
-                    PlaySound("sounds/die.wav");
-                    (*it)->setPlayerState(Dead);
+                    delete * bullet;
+                    bullet = bullets.erase(bullet);
+                    (*it)->decreaseNumLives();
+                    if((*it)->getLives() == 0)
+                    {
+                        PlaySound("sounds/die.wav");
+                        (*it)->setPlayerState(Dead);
+                        ++playerScore;
+
+                    }
                 }
             }
         }
+
 
     }
 
@@ -833,9 +889,9 @@ void terrainFour()
     for(int i = 0; i < terrainMappings[3].size() ; ++i)
     {
         if((i >= 116 && i <= 130 )
-           ||(i >= 212 && i <= 228)
-           || (i >= 376 && i <= 396)
-           || (i >= 476 && i <= 496) )
+                ||(i >= 212 && i <= 228)
+                || (i >= 376 && i <= 396)
+                || (i >= 476 && i <= 496) )
         {
             terrainMappings[4][i]=290;
 
@@ -847,7 +903,7 @@ void terrainFour()
 
 void terrainFive()
 {
-     for(int i = 0; i < terrainMappings[3].size() ; ++i)
+    for(int i = 0; i < terrainMappings[3].size() ; ++i)
     {
         terrainMappings[5][i] = terrainMappings[3][540];
     }

@@ -31,7 +31,7 @@ public:
         }
         if(p.getPlayerType() == Boss){
             xOffset = 15;
-            yOffset = 25;
+            yOffset = 10;
         }
         if(!d)
         {
@@ -57,6 +57,7 @@ public:
     void render(HDC hdc);
     void checkInput();
     bool isHit(const Player& target);
+    int getX() const { return xPos; }
 
 public:
     const Player source;

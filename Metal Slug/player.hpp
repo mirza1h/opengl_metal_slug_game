@@ -19,7 +19,6 @@ class Player{
     void moveRight(std::size_t n);
     void moveUp(std::size_t n);
     void moveDown(std::size_t n);
-    void moveToPoint(POINT pt);
     void setX(int x) {xPos = x;}
     void setY(int y) {yPos = y;}
     int getX() const { return xPos; }
@@ -27,7 +26,6 @@ class Player{
     int getWidth() const { return idle.getWidth(); }
     int getHeight() const { return idle.getHeight(); }
     bool isHit(const Player& target);
-    POINT getCurrentPosition() const;
     bool getDirection() const { return direction; }
 
     Sprite& getIdle() { return idle; }

@@ -25,7 +25,7 @@ class Sprite{
     int getColumnCount() const { return columns; }
     int getRowsCount() const { return rows; }
 
-    void draw(HDC bufferHDC, int xPos, int yPos, std::size_t spriteCountX, std::size_t spriteCountY, bool inverted);
+    void draw(HDC bufferHDC, int xPos, int yPos, std::size_t spriteCountX, std::size_t spriteCountY);
 
 
   private:

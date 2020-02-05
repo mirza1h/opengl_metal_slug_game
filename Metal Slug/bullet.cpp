@@ -17,7 +17,7 @@ bool Bullet::update()
 
 void Bullet::render(HDC hdc)
 {
-  projectile.draw(hdc, xPos, yPos, 0, 0, false);
+  projectile.draw(hdc, xPos, yPos, 0, 0);
 }
 
 
