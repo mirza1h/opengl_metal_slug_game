@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1580933928 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\main.cpp
+1580946312 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\main.cpp
 	<tchar.h>
 	<windows.h>
 	<stdio.h>
@@ -15,32 +15,31 @@
 	"bullet.hpp"
 	"player.hpp"
 
-1580860471 c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\sprite.hpp
+1580941905 c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\sprite.hpp
 	<string>
 	<stdexcept>
 	<vector>
 	<iostream>
 	<windows.h>
 
-1580860479 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\sprite.cpp
+1580941905 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\sprite.cpp
 	"sprite.hpp"
 	"player.hpp"
 	<iostream>
 
-1580683840 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\background.cpp
+1580941905 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\background.cpp
 	"background.hpp"
 
-1580683850 c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\background.hpp
+1580941905 c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\background.hpp
 	<windows.h>
 	<string>
 	<stdexcept>
 	<iostream>
-	<map>
 
-1580857110 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\bullet.cpp
+1580941905 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\bullet.cpp
 	"bullet.hpp"
 
-1580859020 c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\bullet.hpp
+1580941905 c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\bullet.hpp
 	<windows.h>
 	<iostream>
 	<algorithm>
@@ -51,7 +50,7 @@
 	"player.hpp"
 	<wingdi.h>
 
-1580855471 c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\player.hpp
+1580941905 c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\player.hpp
 	<string>
 	<stdexcept>
 	<vector>
@@ -59,7 +58,7 @@
 	<windows.h>
 	"sprite.hpp"
 
-1580855454 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\player.cpp
+1580941905 source:c:\documents and settings\wp\desktop\wp_metal_slug\metal slug\player.cpp
 	"player.hpp"
 	<iostream>
 	<iostream>
