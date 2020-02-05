@@ -96,7 +96,7 @@ Player sniperFive = Player(430, 240, 0, 0, temp, false, 3, Sniper);
 
 Player boss = Player(400, 205, 0, 0, temp, false, 10, Boss);
 
-Player soldier = Player(0, 200, 0, 0, temp, true, 3, Soldier);
+Player soldier = Player(0, 200, 0, 0, temp, true, 5, Soldier);
 
 Player arabianOne = Player(100, 200, 0, 0, temp, false, 1, Arabian);
 Player arabianTwo = Player(110, 165, 0, 0, temp, false, 1, Arabian);
@@ -333,7 +333,7 @@ void SniperFire()
                 FireBullet(1, sniperTwo);
         }
     }
-    if(mapSegementCount == 2)
+    if(mapSegementCount == 2 && arabianTwo.getPlayerState() == Dead)
     {
         if(sniperThree.getPlayerState() != Dead)
         {
@@ -377,7 +377,7 @@ void ArabianAttacks()
         }
         else
         {
-            if(arabianThree.getPlayerState() != Dead && arabianThree.getPlayerState() != Shooting && soldier.getX() >= 250)
+            if(arabianThree.getPlayerState() != Dead && arabianThree.getPlayerState() != Shooting && soldier.getX() >= 210)
                 arabianThree.setPlayerState(Moving);
         }
     }
@@ -525,6 +525,9 @@ void UpdateSprites(RECT * rect)
             (*it)->setPlayerState(Idle);
         }
     }
+    if(mapSegementCount == 6){
+        gameOver = true;
+    }
 
 }
 
@@ -649,7 +652,6 @@ void DrawAnimation (HDC hdc, RECT * rect)
         if(deathCounter == 4)
         {
             gameOver = true;
-            soldier.setLives();
             soldier.setX(0);
             soldier.setY(currentTerrainMappings[0]);
             soldier.setPlayerState(Idle);
