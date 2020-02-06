@@ -188,7 +188,6 @@ int WINAPI WinMain (HINSTANCE hThisInstance,
         {
             if(boss.getPlayerState() == Dead){
                 missionCompleteSprite.draw(hdc, 0, 0, 0, 0);
-                PlaySound("sounds/mission_complete.wav");
             }
             else{
                 gameOverScreen.draw(hdc);
@@ -806,6 +805,11 @@ void DrawAnimation (HDC hdc, RECT * rect)
                     if((*it)->getLives() == 0)
                     {
                         PlaySound("sounds/die.wav");
+                        if((*it)->getPlayerType() == Boss)
+                        {
+                                PlaySound("sounds/mission_complete.wav");
+                        }
+
                         (*it)->setPlayerState(Dead);
                         ++playerScore;
 
